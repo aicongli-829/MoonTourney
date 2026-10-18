@@ -1,0 +1,8 @@
+{
+  "title": "Community football season",
+  "rules": "football",
+  "format": "league-double-playoff",
+  "entrants": ["Aurora", "Bolt", "Comet", "Drift", "Echo", "Flux"],
+  "qualifiers": 4,
+  "seedTieBreak": true
+}

@@ -1,29 +1,9 @@
-# Security
+# Security and data handling
 
-## Supported version
+The web desk performs calculations locally and stores the latest event in browser local storage. Exported snapshots contain entrant names and results; use synthetic entrants in bug reports. This storage is not encrypted and can be cleared by browser settings. Undo history is in memory only.
 
-Security fixes target the latest `main` branch until the first tagged release.
+The bundled development server listens on `127.0.0.1` and serves only the web page, stylesheet and compiled UI. It has no mutation endpoint. The CLI reads only paths supplied by the user and writes new output files with exclusive creation; it never intentionally overwrites an existing file. It is not a directory management tool.
 
-## Local trust model
+JSON imports are bounded and validated. The UI escapes entrant names and other imported text before HTML rendering. Rule source URLs come from known profiles. CSV exports prefix potential spreadsheet formulas and quote cells; review exported data before opening it in spreadsheet software with unusual import settings.
 
-MoonReplay is a local developer tool. The server binds to `127.0.0.1`. Administrative writes require a random session token and validate browser `Host` and `Origin` values.
-
-Capture endpoints intentionally accept untrusted HTTP input. Bodies are bounded to 1 MiB. Mock delays are bounded to 30 seconds. History retention is bounded.
-
-## Sensitive data
-
-Default redaction covers authorization headers, proxy authorization, cookies, common API-key headers, token fields, passwords, client secrets, and payment-card field names. Custom names can be added in workspace settings.
-
-Redaction is a defense against common accidental persistence. It cannot recognize every business-specific secret. Inspect captured data before committing, sharing, or attaching it to an issue.
-
-Never commit `.moonreplay/history.json`. The repository ignore rules exclude local MoonReplay state.
-
-## Replay safety
-
-Replay only occurs after an explicit CLI or web-console action. A replay can trigger real side effects at its target. Use development or staging endpoints unless you intentionally want the production operation.
-
-Stored requests are sanitized. Authentication values removed during capture are not recreated during replay.
-
-## Reporting
-
-Open a private GitHub security advisory for vulnerabilities. Include affected commit, operating system, reproduction steps, and impact. Do not include live credentials or unredacted request captures.
+Report reproducible vulnerabilities privately to the repository maintainer using GitHub's private reporting feature if available. Do not place personal event records, credentials or private file paths in public issues. No external security audit is claimed.

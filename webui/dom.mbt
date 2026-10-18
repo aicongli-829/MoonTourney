@@ -1,86 +1,111 @@
 ///|
-/// The JavaScript FFI in this file is intentionally narrow: it only exposes
-/// browser primitives. Application state, validation and rendering stay in MoonBit.
-extern "js" fn dom_value(id : String) -> String =
-  #|(id) => {
-  #|  const node = document.getElementById(id);
-  #|  return node && "value" in node ? String(node.value) : "";
-  #|}
+/// Browser plumbing only; event decisions and all rendering live in MoonBit.
+extern "js" fn value(id : String) -> String =
+  #|(id) => document.getElementById(id)?.value ?? ""
 
 ///|
-extern "js" fn dom_set_value(id : String, value : String) -> Unit =
-  #|(id, value) => { const node = document.getElementById(id); if (node) node.value = value; }
+extern "js" fn checked(id : String) -> Bool =
+  #|(id) => document.getElementById(id)?.checked === true
 
 ///|
-extern "js" fn dom_text(id : String, value : String) -> Unit =
-  #|(id, value) => { const node = document.getElementById(id); if (node) node.textContent = value; }
+extern "js" fn set_value(id : String, text : String) -> Unit =
+  #|(id, text) => { const el = document.getElementById(id); if (el) el.value = text; }
 
 ///|
-extern "js" fn dom_html(id : String, value : String) -> Unit =
-  #|(id, value) => { const node = document.getElementById(id); if (node) node.innerHTML = value; }
+extern "js" fn html(id : String, text : String) -> Unit =
+  #|(id, text) => { const el = document.getElementById(id); if (el) el.innerHTML = text; }
 
 ///|
-extern "js" fn dom_hidden(id : String, hidden : Bool) -> Unit =
-  #|(id, hidden) => { const node = document.getElementById(id); if (node) node.hidden = hidden; }
+extern "js" fn text(id : String, content : String) -> Unit =
+  #|(id, content) => { const el = document.getElementById(id); if (el) el.textContent = content; }
 
 ///|
-extern "js" fn dom_disabled(id : String, disabled : Bool) -> Unit =
-  #|(id, disabled) => { const node = document.getElementById(id); if (node) node.disabled = disabled; }
+extern "js" fn hidden(id : String, hide : Bool) -> Unit =
+  #|(id, hide) => { const el = document.getElementById(id); if (el) el.hidden = hide; }
 
 ///|
-extern "js" fn dom_class_toggle(
+extern "js" fn disabled(id : String, off : Bool) -> Unit =
+  #|(id, off) => { const el = document.getElementById(id); if (el) el.disabled = off; }
+
+///|
+extern "js" fn set_progress(percent : Int) -> Unit =
+  #|(percent) => { const fill = document.getElementById("progress-fill"); const track = document.getElementById("progress-track"); if (fill) fill.style.width = percent + "%"; if (track) track.setAttribute("aria-valuenow", String(percent)); }
+
+///|
+extern "js" fn scroll_to(id : String) -> Unit =
+  #|(id) => document.getElementById(id)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" })
+
+///|
+extern "js" fn selected_tab(name : String) -> Unit =
+  #|(name) => { for (const el of document.querySelectorAll("[data-tab]")) { el.setAttribute("aria-selected", String(el.dataset.tab === name)); } }
+
+///|
+extern "js" fn bind(id : String, event : String, callback : () -> Unit) -> Unit =
+  #|(id, event, cb) => document.getElementById(id)?.addEventListener(event, e => { if (event === "submit") e.preventDefault(); cb(); })
+
+///|
+extern "js" fn delegate(
   id : String,
-  name : String,
-  active : Bool,
+  callback : (String, String) -> Unit,
 ) -> Unit =
-  #|(id, name, active) => document.getElementById(id)?.classList.toggle(name, active)
+  #|(id, cb) => document.getElementById(id)?.addEventListener("click", e => { const el = e.target.closest("[data-action]"); if (el && document.getElementById(id).contains(el)) cb(el.dataset.action, el.dataset.id ?? ""); })
 
 ///|
-extern "js" fn bind_click(id : String, callback : () -> Unit) -> Unit =
-  #|(id, callback) => document.getElementById(id)?.addEventListener("click", () => callback())
+extern "js" fn get_storage() -> String =
+  #|() => { try { return localStorage.getItem("moontourney-session-v1") ?? localStorage.getItem("moonfixture-session-v1") ?? ""; } catch { return ""; } }
 
 ///|
-extern "js" fn bind_delegate(
-  id : String,
-  callback : (String, String, String) -> Unit,
-) -> Unit =
-  #|(id, callback) => {
-  #|  const root = document.getElementById(id);
-  #|  if (!root) return;
-  #|  const send = (event) => {
-  #|    const node = event.target.closest("[data-action]");
-  #|    if (node && root.contains(node)) callback(node.dataset.action || "", node.dataset.index || "", "value" in node ? String(node.value) : "");
-  #|  };
-  #|  root.addEventListener("click", send);
-  #|  root.addEventListener("change", send);
-  #|  root.addEventListener("input", send);
-  #|}
+extern "js" fn save_storage(content : String) -> Bool =
+  #|(content) => { try { localStorage.setItem("moontourney-session-v1", content); return true; } catch { return false; } }
 
 ///|
-extern "js" fn api_request(
-  path : String,
-  body : String,
-  callback : (String) -> Unit,
-) -> Unit =
-  #|(path, body, callback) => {
-  #|  const isSession = path === "/__moonreplay/api/session";
-  #|  fetch(path, { method: isSession ? "GET" : "POST", headers: { "Content-Type": "application/json", "X-MoonReplay-Token": globalThis.__moonreplayToken || "" }, body: isSession ? undefined : body })
-  #|    .then(async response => callback(await response.text()))
-  #|    .catch(error => callback(JSON.stringify({ error: error.message })));
-  #|}
+extern "js" fn get_season_storage() -> String =
+  #|() => { try { return localStorage.getItem("moontourney-seasons-v1") ?? ""; } catch { return ""; } }
 
 ///|
-extern "js" fn set_api_token(token : String) -> Unit =
-  #|(token) => { globalThis.__moonreplayToken = token; }
+extern "js" fn save_season_storage(content : String) -> Bool =
+  #|(content) => { try { localStorage.setItem("moontourney-seasons-v1", content); return true; } catch { return false; } }
 
 ///|
-extern "js" fn dom_focus(id : String) -> Unit =
-  #|(id) => document.getElementById(id)?.focus()
+extern "js" fn get_active_season_storage() -> String =
+  #|() => { try { return localStorage.getItem("moontourney-active-season-v1") ?? ""; } catch { return ""; } }
 
 ///|
-extern "js" fn copy_text(value : String) -> Unit =
-  #|(value) => navigator.clipboard?.writeText(value)
+extern "js" fn save_active_season_storage(key : String) -> Bool =
+  #|(key) => { try { localStorage.setItem("moontourney-active-season-v1", key); return true; } catch { return false; } }
 
 ///|
-extern "js" fn browser_confirm(message : String) -> Bool =
+extern "js" fn download(name : String, content : String, mime : String) -> Unit =
+  #|(name, content, mime) => { const url = URL.createObjectURL(new Blob([content], {type:mime})); const a = document.createElement("a"); a.href=url; a.download=name; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
+
+///|
+extern "js" fn load_file(callback : (Bool, String) -> Unit) -> Unit =
+  #|(cb) => { const input=document.getElementById("import-file"); const file=input.files?.[0]; input.value=""; if (!file) return; if (file.size>4000000) {cb(false,"File exceeds 4 MB.");return;} file.text().then(s=>cb(true,s.replace(/^\uFEFF/,"")), e=>cb(false,e.message)); }
+
+///|
+extern "js" fn open_dialog() -> Unit =
+  #|() => document.getElementById("result-dialog").showModal()
+
+///|
+extern "js" fn close_dialog() -> Unit =
+  #|() => document.getElementById("result-dialog").close()
+
+///|
+extern "js" fn confirm_change(message : String) -> Bool =
   #|(message) => window.confirm(message)
+
+///|
+extern "js" fn print_page() -> Unit =
+  #|() => window.print()
+
+///|
+extern "js" fn open_export() -> Unit =
+  #|() => document.getElementById("export-dialog").showModal()
+
+///|
+extern "js" fn close_export() -> Unit =
+  #|() => document.getElementById("export-dialog").close()
+
+///|
+extern "js" fn copy_text(content : String, callback : (Bool) -> Unit) -> Unit =
+  #|(content, cb) => { if(!navigator.clipboard?.writeText){cb(false);return;} navigator.clipboard.writeText(content).then(()=>cb(true),()=>cb(false)); }

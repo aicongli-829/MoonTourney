@@ -1,0 +1,9 @@
+{
+  "title": "Campus football cup",
+  "rules": "football",
+  "format": "groups",
+  "entrants": ["Aurora", "Bolt", "Comet", "Drift", "Echo", "Flux", "Glacier", "Halo"],
+  "groupCount": 2,
+  "qualifiers": 2,
+  "seedTieBreak": true
+}

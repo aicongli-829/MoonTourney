@@ -1,64 +1,32 @@
 name: Bug report
-description: Report incorrect indexing, ranking, filtering, or local UI behavior
-title: "[Bug]: "
-labels:
-  - bug
+description: Report incorrect pairing, scoring, ranking, scheduling or web behavior
+title: '[Bug]: '
+labels: [bug]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for helping improve MoonSeek. Use synthetic files and remove private paths, contents, tokens, and index data.
   - type: input
     id: version
     attributes:
-      label: MoonSeek commit or version
-      placeholder: e.g. 0.3.0 or a commit SHA
+      label: MoonTourney version or commit
     validations:
       required: true
   - type: input
     id: environment
     attributes:
       label: Environment
-      description: Operating system, MoonBit version, and interface used
-      placeholder: Windows 11, MoonBit 0.x, native CLI
-    validations:
-      required: true
-  - type: dropdown
-    id: area
-    attributes:
-      label: Affected area
-      options:
-        - Filesystem scanning and ignore rules
-        - Tokenization and index construction
-        - Ranking, fuzzy match, and filters
-        - Incremental updates and persistence
-        - CLI, HTTP API, or web interface
-        - Build and documentation
+      description: OS, MoonBit version, browser or CLI
     validations:
       required: true
   - type: textarea
     id: reproduction
     attributes:
-      label: Minimal reproduction
-      description: Describe the synthetic directory, query, command, and steps.
+      label: Minimal synthetic example
+      description: Sport profile, format, entrant count, results and steps
     validations:
       required: true
   - type: textarea
-    id: expected
+    id: behavior
     attributes:
-      label: Expected behavior
+      label: Expected and actual behavior
+      description: Link the rule source and edition if this concerns a scoring rule.
     validations:
       required: true
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual behavior
-    validations:
-      required: true
-  - type: checkboxes
-    id: safety
-    attributes:
-      label: Safety check
-      options:
-        - label: I removed private files, contents, access tokens, personal paths, and real `.moonseek` state.
-          required: true

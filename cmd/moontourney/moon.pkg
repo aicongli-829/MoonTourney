@@ -1,0 +1,14 @@
+import {
+  "moontourney/core",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+  "moonbitlang/core/string",
+}
+
+supported_targets = "+js"
+
+pkgtype(kind: "executable")
+
+options(
+  link: { "js": { "format": "esm" } },
+)

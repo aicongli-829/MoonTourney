@@ -1,48 +1,19 @@
 name: Feature request
-description: Propose a practical MoonSeek workflow or improvement
-title: "[Feature]: "
-labels:
-  - enhancement
+description: Propose a concrete competition workflow or reusable library capability
+title: '[Feature]: '
+labels: [enhancement]
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Problem to solve
-      description: Describe the file discovery, indexing, or local search task that is difficult today.
-    validations:
-      required: true
-  - type: textarea
-    id: workflow
-    attributes:
-      label: Example workflow
-      description: Show a small directory, index, or query example.
+      label: Organizer or integration problem
+      description: Include a small event example and the expected decision.
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
-      label: Proposed behavior
+      label: Proposed behavior and rule scope
+      description: Distinguish official standards from organizer policies.
     validations:
       required: true
-  - type: dropdown
-    id: surface
-    attributes:
-      label: Preferred interface
-      options:
-        - Indexing and ignore rules
-        - Query parsing and ranking
-        - Native CLI
-        - Library API
-        - Local web interface
-        - Documentation or examples
-    validations:
-      required: true
-  - type: checkboxes
-    id: guarantees
-    attributes:
-      label: Quality guarantees
-      description: Select guarantees relevant to the proposal.
-      options:
-        - label: Indexed source files remain read-only
-        - label: Search output stays deterministic
-        - label: Private paths and content stay local

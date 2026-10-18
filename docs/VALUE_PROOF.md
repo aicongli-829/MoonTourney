@@ -1,57 +1,35 @@
-# Necessity and value
+# Use cases and inspectable evidence
 
-## A reproducibility problem, not another HTTP framework
+## Problem
 
-MoonBit already has HTTP transports and web frameworks. Those projects help an application send or receive network traffic. MoonReplay addresses the next developer problem: preserving one concrete interaction so it can be inspected, simulated, replayed, and compared.
+A small competition often spreads decisions across a pairing sheet, a score sheet and a timetable. If a semifinal result is corrected, the organizer must remember which final and third-place results became invalid. If a group cutoff is tied, stable row ordering can accidentally be mistaken for a real qualification rule. MoonTourney makes those dependencies and policies explicit.
 
-A webhook bug often arrives as “the callback failed.” The useful evidence is distributed across a provider dashboard, application logs, temporary headers, and the current server implementation. Reconstructing it manually is slow and often inaccurate. The request may contain a signature header, repeated query value, nested JSON field, or path identifier that was omitted from the report.
+## Concrete scenarios
 
-MoonReplay keeps the whole bounded exchange as one local artifact and turns it into a repeatable test input.
+| Scenario | Organizer task | Runnable evidence |
+|---|---|---|
+| Eight-team campus football cup | Two groups, six games each, two qualifiers per group, cross-group opening knockout | `examples/football-groups.json`; tests for group cutoff ties, pairing repair and group-result invalidation |
+| Six-player badminton evening | Handle two byes, legal extended scores, semifinal dependencies and a third-place game | `examples/badminton-cup.json`, `examples/badminton-result.json`; CLI smoke and single-bracket simulations |
+| Seven-player chess club | Pair score groups without repeat opponents, assign a different bye, explain half-point standings | `examples/chess-swiss.json`; multi-round Swiss, bye, opponent-metric and withdrawal tests |
+| Eight-team esports cup | Best-of-five maps, two-loss elimination, conditional grand-final reset | `examples/esports-double.json`; double-elimination simulations for both final outcomes |
+| Community volleyball league | Different deciding-set target, 3–2 points split, exact set and rally ratios | Scoring and standings tests for 25-point / 15-point games, 2/1 points and ratio zero denominators |
+| Two-court club day | Prevent participant overlap and allow rest before a later bracket game | `examples/schedule.json`; independent allocation validation and short-horizon tests |
+| Home/away group cup | Play both sides of each group pairing, then qualify entrants for a final bracket | `examples/football-home-away-groups.json`; full group-to-knockout test and correction invalidation |
+| Community league cup | Play a complete table with organizer-defined scores, then seed the top four into a playoff | `examples/community-league-playoff.json`; API smoke plus qualification, tie-blocking and edit-invalidation tests |
+| Home/away football season | Play reversed fixtures before the top four enter a playoff | `examples/football-league-home-away.json`; two-leg league and snapshot round-trip tests |
+| Spring and Summer club program | Save Spring results, reuse the same setup for Summer without carrying over scores, inspect both winners and export the archive | `season-new`, `season-add`, `season-clone`, `season-list` CLI smoke; collection round-trip and mixed-format tests |
+| Swiss chess playoff | Complete three score-based pairing rounds, rank active entrants, then seed a four-player knockout | `examples/chess-swiss-playoff.json`; round-limit, qualification, snapshot and stale-bracket tests |
 
-## Concrete workflows
+## Acceptance demonstration
 
-### Webhook development
+Run the badminton commands in [CLI.md](CLI.md), then import the resulting JSON into the web desk. Confirm that the scored game shows `2 : 1`, that its winner occupies the corresponding semifinal, and that pending fixtures remain waiting. Change the opening result after a later fixture is scored: the dependent result must disappear. Undo must restore the previous snapshot.
 
-A developer points a payment, Git hosting, form, or automation callback at MoonReplay. The traffic view shows what arrived. A route can return the exact 2xx, 4xx, delay, header, or JSON body needed to exercise the sender. Sensitive values are masked before the exchange reaches disk.
+For group or league qualification, complete every first-stage game. A tie across the cutoff must block advancement unless an explicit final criterion has been configured. Knockout results must not affect the original tables. For double elimination, a lower-champion victory in the grand final must activate a reset; the upper champion cannot be eliminated on a first loss.
 
-### Frontend and mobile development
+## Evidence quality
 
-A UI can continue working before its backend endpoint is ready. Mock rules describe method and path conditions plus deterministic responses. Template variables let one rule serve `/users/{id}` or `/orders/{orderId}` without embedding application code.
+The examples use synthetic entrants and the tests exercise actual algorithms. They establish reproducible behavior, not real-world adoption or speed compared with spreadsheets. User interviews, production event records and external integrations have not yet been collected. These are the next validation steps, rather than invented evidence for an application form.
 
-### Failure reproduction
+## MoonBit value
 
-A captured request can be replayed against a repaired local service. MoonReplay compares the new response with the recorded response. JSON differences identify a field path such as `$.order.state`; text differences identify the first changed line.
-
-### Regression fixtures
-
-Teams can keep non-secret route definitions in Git and load them in local or CI environments. The same matcher and validator run on Native and JavaScript targets, so fixture behavior is deterministic and portable.
-
-### Third-party integration debugging
-
-When an integration changes behavior, cURL export gives a small reproducible case. The developer can share the sanitized command or route rather than sharing a database dump or an entire application environment.
-
-## Why local operation matters
-
-HTTP captures frequently contain bearer tokens, cookies, customer payloads, and internal URLs. Uploading every debugging request to a hosted inspector creates a second data destination. MoonReplay binds to loopback, persists locally, bounds history, and applies default redaction before saving.
-
-This does not make arbitrary captured data safe to share. It does remove the need for a cloud account and gives the developer an inspectable policy boundary.
-
-## Why a general tool is feasible here
-
-MoonReplay does not attempt to migrate application state or understand business-specific versions. Its abstraction is the HTTP exchange, which already has stable, general parts: method, target, headers, body, response, and elapsed time. Mock matching and replay operate on those protocol-level values, while application-specific behavior remains in explicit route fixtures.
-
-That boundary is small enough to test thoroughly and broad enough to support many applications.
-
-## Evidence in the repository
-
-The value claim is backed by executable behavior:
-
-- a real MoonBit HTTP server captures arbitrary paths;
-- a real MoonBit HTTP client replays requests;
-- the matcher supports path parameters, metadata, and structured bodies;
-- the redactor traverses nested JSON;
-- the diff engine reports structural response changes;
-- Native tests complete an HTTP replay round trip;
-- the browser console exposes capture, route management, replay, cURL export, and diff results.
-
-The project is therefore usable as a standalone developer tool while also publishing reusable protocol logic in its portable core.
+The domain engine is portable across JavaScript, Native and Wasm GC. UI rendering and CLI command logic are also written in MoonBit. The same validated transitions are used by the web desk, command line and JSON integration boundary, so consumers do not need to reimplement ranking and bracket dependency rules.

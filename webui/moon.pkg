@@ -1,4 +1,5 @@
 import {
+  "moontourney/core",
   "moonbitlang/core/json",
   "moonbitlang/core/string",
 }

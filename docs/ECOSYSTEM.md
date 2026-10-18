@@ -1,53 +1,26 @@
-# MoonBit ecosystem contribution
+# Ecosystem positioning
 
-MoonReplay contributes an end-user developer tool and a reusable protocol-testing core.
+## Scope of the project
 
-## Distinct role
+The deliverable is a reusable competition engine with a web reference application. Its public domain types are participants, fixtures, results, rules, standings and allocations. It does not implement local file search, generic filesystem migration, HTTP capture, request mocking or replay.
 
-HTTP libraries answer “how do I send or serve a request?” Web frameworks answer “how do I route a request to application code?” MoonReplay answers “what exact request arrived, how can I simulate its response, and what changed when I replayed it?”
+## Search evidence and limits
 
-It composes with HTTP packages rather than replacing them. A framework application can receive replayed traffic, and any HTTP client can call its mock endpoints.
+An initial review on 29 September 2026 examined a Mooncakes registry snapshot of 2,721 package records and public GitHub discovery queries for MoonBit tournament / fixture / bracket / Swiss / round-robin projects. Chinese scheduling queries were also examined. Reviewed discovery results did not identify a directly matching multi-sport tournament engine with these workflows; several keyword matches concerned networking round-robin behavior, individual games, or project catalogs.
 
-MoonReplay is also separate from search and retrieval projects. It has no document scanner, inverted index, tokenizer, BM25 ranker, vector store, or RAG pipeline. History filters operate on bounded HTTP metadata and do not provide full-text search.
+A fresh Mooncakes search on 16 October 2026 covered tournament, bracket, fixture, round-robin, Swiss, league, standings, elimination, pairing and Chinese competition terms. It found no published package with the same end-to-end competition engine. It did find `tlhuecdkoyg/MoonFixture`, a relational **test-data generator** unrelated to sports, but with the same name as this project's original working title. This project is now named **MoonTourney** to avoid that naming collision. `0Ayachi0/SwissTable` is a hash table, and the tournament match in `bobzhang/games` is an archery game.
 
-## Reusable MoonBit components
+This is **negative discovery evidence**, not a proof that no overlapping project exists. Package metadata and public search do not cover unpublished work, private repositories, recent unindexed submissions or the organizers' internal project list. The detailed local research snapshots remain in ignored private materials, not in the distributed package.
 
-The portable package demonstrates and exposes:
+Public entry points for independent checking:
 
-- canonical HTTP request models represented as stable JSON;
-- deterministic route precedence;
-- exact, prefix, template, and wildcard path matching;
-- header and query predicate evaluation;
-- exact and subset JSON matching;
-- response template interpolation;
-- recursive redaction policies;
-- semantic JSON response diffs;
-- bounded history filtering and pagination;
-- workspace validation with machine-readable diagnostics;
-- cURL generation.
+- [Mooncakes registry](https://mooncakes.io/)
+- [MoonBit tournament repository discovery](https://github.com/search?q=MoonBit+tournament&type=repositories)
+- [MoonBit Swiss repository discovery](https://github.com/search?q=MoonBit+Swiss&type=repositories)
+- [MoonBit fixture repository discovery](https://github.com/search?q=MoonBit+fixture&type=repositories)
 
-These algorithms contain no filesystem or socket access and compile on JavaScript as well as Native.
+## Reusable contribution
 
-## Native MoonBit coverage
+A MoonBit application can use the library without its web UI, without Node filesystem adapters and without a network service. Examples include a club portal displaying an event table, a desktop organizer computing brackets, a student competition dashboard and an esports map-score application.
 
-The Native adapter exercises areas valuable to MoonBit application authors:
-
-- asynchronous HTTP server and client APIs;
-- atomic local persistence;
-- bounded state files;
-- CLI parsing;
-- loopback browser applications;
-- cross-target tests with strict warning checks.
-
-## Browser MoonBit coverage
-
-The web console is an executable MoonBit package. JavaScript is limited to small FFI functions for DOM access, events, fetch, clipboard, and confirmation. Filtering, rendering decisions, request payload construction, and state handling remain in MoonBit.
-
-## Candidate Mooncakes packages
-
-The portable core can later be published independently from the application:
-
-- `moonreplay/core`: models, matchers, templates, redaction, validation, and diffs;
-- `moonreplay/native`: persistence, capture server, replay client, and CLI.
-
-This split lets another MoonBit project embed deterministic HTTP fixtures without launching the full web console.
+Evidence of usefulness is supplied through runnable scenarios, rule-boundary documentation and behavior tests. No adoption numbers, organizer endorsement, federation certification or guaranteed hackathon approval are claimed. Before final submission, compare any newly identified similar project by actual public APIs and core workflows, and describe concrete differences.

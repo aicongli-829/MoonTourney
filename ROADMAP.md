@@ -1,32 +1,22 @@
 # Roadmap
 
-## 0.1 — hackathon release
+## Delivered in 0.1
 
-- local request capture;
-- deterministic mock routes;
-- request and response redaction;
-- bounded atomic history;
-- replay to explicit HTTP/HTTPS targets;
-- structural response comparison;
-- cURL export;
-- Native CLI and local MoonBit web console;
-- strict Native and JavaScript CI.
+Portable engine; ten formats including home/away league playoffs, home/away groups and Swiss playoffs; ten profiles including configurable open score; scoring and ranking; qualification; dependent-result clearing; Club Swiss; withdrawals; session history; season collections with next-season cloning and historical titles; court scheduling; English web desk; CLI; JSON / CSV / Markdown exchange; tests and rule references.
 
-## 0.2
+## Next practical validation
 
-- import and export HTTP Archive (`.har`) fixtures;
-- optional JSON Schema body assertions;
-- route groups and reusable response fragments;
-- configurable diff ignore paths;
-- streaming event updates in the web console;
-- fixture-oriented CI command with process exit codes.
+1. Run an actual small club event and record organizer feedback and corrections.
+2. Publish the core package under a verified Mooncakes namespace, with import examples.
+3. Add an independent integration demonstrating use without the reference UI.
+4. Add benchmarks for supported field sizes and profile graph-resolution bottlenecks.
 
-## 0.3
+## Candidate extensions
 
-- OpenAPI example-to-route generation;
-- record-forward mode with an explicit upstream allowlist;
-- request sequence assertions;
-- latency and failure profiles;
-- published `moonreplay/core` and `moonreplay/native` Mooncakes packages.
+- Venue opening windows, breaks and per-match duration estimates.
+- Explicit manual qualification decisions with an audit note for unresolved ties.
+- Complete recursive sport-specific mini-table rules with official worked examples.
+- Multi-game playoff series attached to bracket fixtures.
+- Published static event display separated from organizer editing.
 
-Production proxying, TLS interception, system-wide packet capture, and public tunnel hosting are outside the intended scope.
+These are future work, not implemented capabilities. FIDE certification, full professional league administration, cloud accounts and payment/registration systems are outside the current scope.

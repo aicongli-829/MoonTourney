@@ -1,0 +1,9 @@
+{
+  "title": "Community chess Swiss playoff",
+  "rules": "chess",
+  "format": "swiss-playoff",
+  "entrants": ["Alex", "Blair", "Casey", "Drew", "Eden", "Frankie", "Gale", "Harper"],
+  "swissRounds": 3,
+  "qualifiers": 4,
+  "seedTieBreak": true
+}

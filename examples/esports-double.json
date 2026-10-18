@@ -1,0 +1,6 @@
+{
+  "title": "Weekend map cup",
+  "rules": {"id": "esports", "bestOf": 5},
+  "format": "double-elimination",
+  "entrants": ["Aurora", "Bolt", "Comet", "Drift", "Echo", "Flux", "Glacier", "Halo"]
+}

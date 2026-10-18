@@ -1,0 +1,8 @@
+{
+  "title": "Neighborhood league cup",
+  "rules": "open-score",
+  "format": "league-playoff",
+  "entrants": ["Aurora", "Bolt", "Comet", "Drift", "Echo", "Flux", "Glacier", "Halo"],
+  "qualifiers": 4,
+  "seedTieBreak": true
+}

@@ -1,22 +1,8 @@
 import {
   "moonbitlang/core/json",
-  "moonbitlang/core/string",
+  "moonbitlang/core/debug",
 }
 
 options(
-  link: {
-    "js": {
-      "exports": [
-        "match_request_json",
-        "select_route_json",
-        "render_response_json",
-        "redact_exchange_json",
-        "diff_responses_json",
-        "validate_workspace_json",
-        "filter_exchanges_json",
-        "export_curl_json",
-      ],
-      "format": "esm",
-    },
-  },
+  link: { "js": { "exports": [ "dispatch_json" ], "format": "esm" } },
 )

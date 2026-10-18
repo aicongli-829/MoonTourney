@@ -1,58 +1,72 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="dark">
-    <meta name="description" content="Local HTTP capture, mock, replay, and response-diff workbench powered by MoonBit.">
-    <title>MoonReplay · Reproduce HTTP behavior locally</title>
-    <link rel="stylesheet" href="/style.css">
-    <script type="module" src="/app.js"></script>
-  </head>
-  <body>
-    <div class="glow glow-a"></div><div class="glow glow-b"></div>
-    <header class="app-header">
-      <a class="brand" href="/"><span class="brand-mark">MR</span><span>MoonReplay<small>HTTP behavior workbench</small></span></a>
-      <div class="local"><span></span>Loopback only · secrets redacted</div>
-    </header>
-    <main>
-      <section class="hero">
-        <div><p class="eyebrow">MOONBIT NATIVE DEVELOPER TOOL</p><h1>Capture once. Replay exactly.</h1><p>Inspect webhooks, mock APIs, reproduce failures, and compare responses without sending traffic to a cloud service.</p></div>
-        <div class="quick-start"><span>Listening on</span><code>http://127.0.0.1:4173/&lt;any-path&gt;</code><button id="refresh-button">Refresh</button></div>
-      </section>
-      <div id="message" role="status" aria-live="polite" hidden></div>
-      <section class="stats">
-        <article><strong id="stat-exchanges">0</strong><span>captured exchanges</span></article>
-        <article><strong id="stat-routes">0</strong><span>active mock routes</span></article>
-        <article><strong>1 MiB</strong><span>bounded request bodies</span></article>
-        <article><strong>Local</strong><span>data destination</span></article>
-      </section>
-      <section class="workbench">
-        <aside class="traffic panel">
-          <div class="panel-head"><div><p class="eyebrow">TRAFFIC</p><h2 id="history-count">0 exchanges</h2></div><button id="clear-button" class="ghost danger">Clear</button></div>
-          <div class="filters"><select id="method-filter"><option value="">Any method</option><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select><select id="status-filter"><option value="">Any status</option><option value="2xx">2xx</option><option value="4xx">4xx</option><option value="5xx">5xx</option></select><input id="path-filter" placeholder="Path contains…"><button id="filter-button">Apply</button></div>
-          <div id="traffic-list" class="traffic-list"><div class="empty"><strong>No requests captured</strong><span>Send an HTTP request to this server.</span></div></div>
-        </aside>
-        <section class="inspector panel">
-          <input id="selected-exchange" type="hidden">
-          <div id="exchange-empty" class="empty large"><div>↻</div><strong>Select a captured request</strong><span>Request and response details will appear here.</span></div>
-          <div id="exchange-detail" hidden>
-            <div class="request-title"><span id="detail-method" class="verb">GET</span><code id="detail-path">/</code><span id="detail-status" class="status neutral">0</span></div>
-            <div class="chips"><span>mode <b id="detail-mode">capture</b></span><span>route <b id="detail-route">unmatched</b></span></div>
-            <div class="replay-bar"><input id="replay-target" placeholder="http://localhost:3000/webhooks"><button id="replay-button">Replay &amp; compare</button><button id="curl-button" class="ghost">Copy cURL</button></div>
-            <div class="message-grid">
-              <article><h3>Request headers</h3><div id="request-headers"></div><h3>Request body</h3><pre id="request-body"></pre></article>
-              <article><h3>Response headers</h3><div id="response-headers"></div><h3>Response body</h3><pre id="response-body"></pre></article>
-            </div>
-            <article id="diff-panel" class="diff-panel" hidden><h3>Replay difference</h3><pre id="diff-output"></pre></article>
-          </div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#183d42">
+  <title>MoonTourney — competition desk</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="ui.mjs"></script>
+</head>
+<body>
+<div id="app">
+  <header class="masthead">
+    <a class="brand" href="#"><span class="mark" aria-hidden="true">M</span><span>MoonTourney<small>THE COMPETITION DESK</small></span></a>
+    <div class="header-actions"><a id="jump-event" class="button jump-event" href="#workspace" hidden>View event ↓</a><label class="button secondary">Import JSON<input id="import-file" type="file" accept="application/json,.json" class="file-input"></label><button id="print" class="secondary">Print</button><span class="local-badge">Local · no account</span></div>
+  </header>
+  <div id="notice" class="notice" role="status" hidden></div>
+  <main class="layout">
+    <aside id="setup" class="setup card">
+      <div class="eyebrow">01 / SET UP</div><h1>Build your competition.</h1><p class="muted">From the first pairing to the final whistle.</p>
+      <form id="setup-form">
+        <label>Competition name<input id="title" value="Campus football cup" maxlength="160" required></label>
+        <div class="field-pair"><label>Sport<select id="sport"><option value="open-score">Open score · any activity</option><option value="football">Football</option><option value="basketball">Basketball</option><option value="volleyball">Volleyball</option><option value="beach-volleyball">Beach volleyball</option><option value="badminton-21">Badminton · 21 points</option><option value="badminton-15">Badminton · 15-point alternative</option><option value="table-tennis">Table tennis</option><option value="chess">Chess</option><option value="esports">Esports · map series</option></select></label><label>Format<select id="format"><option value="round-robin">Round robin</option><option value="double-round-robin">Double round robin</option><option value="league-playoff">League → knockout</option><option value="league-double-playoff">Home/away league → knockout</option><option value="single-elimination">Single elimination</option><option value="double-elimination">Double elimination</option><option value="groups">Groups → knockout</option><option value="groups-double">Home/away groups → knockout</option><option value="swiss">Club Swiss</option><option value="swiss-playoff">Swiss → knockout</option></select></label></div>
+        <div id="group-options" class="field-pair" hidden><label>Groups<input id="group-count" type="number" min="2" max="16" value="2"></label><label>Qualify per group<input id="qualifiers" type="number" min="1" max="64" value="2"></label></div>
+        <div id="swiss-options" class="field-pair" hidden><label>Swiss rounds<input id="swiss-rounds" type="number" min="1" max="63" value="3"></label><label>Playoff entrants<input id="playoff-qualifiers" type="number" min="2" max="64" value="4"></label></div>
+        <div id="league-options" class="field-pair" hidden><label>Playoff entrants from league table<input id="league-qualifiers" type="number" min="2" max="64" value="4"></label><p class="hint">Use 2, 4, 8, 16, 32 or 64. Finish all league games before the playoff.</p></div>
+        <label id="third-options" hidden>Third-place game<select id="third-place"><option value="no">No</option><option value="yes">Yes</option></select></label>
+        <label>Entrants <span class="label-note">one per line · seed order</span><textarea id="entrants" rows="7" required>Aurora
+Bolt
+Comet
+Drift
+Echo
+Flux
+Glacier
+Halo</textarea></label>
+        <details><summary>Scoring &amp; ranking settings</summary><p id="preset-note" class="hint"></p><label>Best of<input id="best-of" type="number" min="1" max="15" step="2" value="1"></label><div class="field-triple"><label>Win points<input id="win-points" type="number" min="0" max="100" value="3"></label><label>Draw<input id="draw-points" type="number" min="0" max="100" value="1"></label><label>Loss<input id="loss-points" type="number" min="0" max="100" value="0"></label></div><label>Ranking criteria<input id="tie-breaks" value="points, difference, scored"></label><p class="hint">Comma-separated: points, wins, difference, scored, head-to-head, set-ratio, score-ratio, buchholz, buchholz-cut-one, sonneborn-berger, seed. Chess points use half-point units (win 2, draw 1).</p><label>Final seed tie-break<select id="seed-tie"><option value="no">Keep equal ranks tied</option><option value="yes">Resolve final ties by initial seed</option></select></label></details>
+        <div class="quick-season"><label class="check-label"><input id="auto-season" type="checkbox" checked> Save this competition as a season</label><label>Season name<input id="initial-season-label" maxlength="120" value="Season 1" placeholder="Spring 2026"></label><p class="hint">A complete first-stage fixture list and a suggested daily timetable appear automatically. Scores are entered only after games are played.</p></div>
+        <button type="submit" class="primary create-button">Generate competition &amp; schedule <span aria-hidden="true">↗</span></button>
+      </form>
+      <div class="examples"><div class="eyebrow">TRY AN EXAMPLE</div><button data-action="sample" data-id="league" class="chip">Community league</button><button data-action="sample" data-id="football" class="chip">Football groups</button><button data-action="sample" data-id="badminton" class="chip">Badminton night</button><button data-action="sample" data-id="swiss" class="chip">Chess club</button><button data-action="sample" data-id="esports" class="chip">Map cup</button></div>
+      <section class="season-manager"><div class="eyebrow">SEASON ARCHIVE</div><h2>One club, many seasons.</h2><p class="hint">Keep Spring, Summer and later events together. Each season can use a different sport or format.</p><label>Series name<input id="series-title" maxlength="160" value="Community 2026"></label><button id="rename-series" class="secondary small" disabled>Rename series</button><label>New season name<input id="season-label" maxlength="120" placeholder="Spring 2026"></label><div class="season-controls"><button id="add-season" class="secondary" disabled>Save current as season</button><button id="clone-season" class="secondary" disabled>Start next season</button></div><button id="update-roster" class="text-button" disabled>Apply entrant list to current season</button><p class="hint">Edit the Entrants box above first. Available before the season has recorded scores.</p><p id="season-status" class="hint"></p><div id="season-list"></div><details><summary>Participant history</summary><p class="hint">Appearances and titles match entrant names exactly. Scores from different sports are kept separate.</p><div class="table-wrap"><table><thead><tr><th>Entrant</th><th>Seasons</th><th>Titles</th></tr></thead><tbody id="season-history"></tbody></table></div></details><div class="season-controls"><button id="export-seasons" class="text-button" disabled>Export all seasons JSON ↗</button><button id="export-season-summary" class="text-button" disabled>Export seasons CSV ↗</button><button id="export-season-history" class="text-button" disabled>Export history CSV ↗</button></div></section>
+    </aside>
+    <section class="desk">
+      <section id="welcome" class="welcome card"><div class="eyebrow">YOUR NEXT EVENT, IN ORDER</div><h2>Less spreadsheet.<br>More competition.</h2><p>Pick a sport, add your entrants, and choose a format. Record scores, explain rankings, and reserve enough rest between games.</p><div class="welcome-grid"><div><b>10</b><span>scoring presets</span></div><div><b>10</b><span>competition formats</span></div><div><b>100</b><span>undo steps in this session</span></div></div><p class="hint">Your current event stays in this browser. Export JSON to move it to another device or keep a backup.</p></section>
+      <section id="workspace" hidden>
+        <div class="event-header"><div><div class="eyebrow">02 / RUN THE EVENT</div><h2 id="event-title"></h2><p id="event-meta" class="muted"></p></div><div class="toolbar"><button id="undo" class="secondary" disabled>Undo</button><button id="redo" class="secondary" disabled>Redo</button><button data-action="export" data-id="json" class="primary">Save JSON</button></div></div>
+        <div class="stats"><div><span>Entrants</span><b id="count-entrants">0</b></div><div><span>Completed</span><b id="count-completed">0</b></div><div><span>Ready to play</span><b id="count-ready">0</b></div><div><span>Champion</span><b id="champion" class="champion">In progress</b></div></div>
+        <div class="event-progress"><div class="progress-heading"><span>Competition progress</span><strong id="progress-label">0 of 0 games completed</strong></div><div id="progress-track" class="progress-track" role="progressbar" aria-label="Competition progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-fill"></span></div></div>
+        <div class="tabs" role="tablist" aria-label="Competition views"><button role="tab" data-tab="fixtures" data-action="tab" data-id="fixtures" aria-selected="true" aria-controls="panel-fixtures">Fixtures</button><button role="tab" data-tab="standings" data-action="tab" data-id="standings" aria-selected="false" aria-controls="panel-standings">Standings</button><button role="tab" data-tab="schedule" data-action="tab" data-id="schedule" aria-selected="false" aria-controls="panel-schedule">Court schedule</button><button role="tab" data-tab="rules" data-action="tab" data-id="rules" aria-selected="false" aria-controls="panel-rules">Rules</button></div>
+        <section id="panel-fixtures" class="card panel" role="tabpanel">
+          <div class="section-heading"><h3>Generated fixtures &amp; results</h3><div class="toolbar"><button id="advance-groups" data-action="advance" class="secondary">Start knockout</button><button id="next-round" data-action="next-round" class="secondary">Next Swiss round</button></div></div>
+          <p id="fixtures-summary" class="hint"></p>
+          <div class="filters"><input id="search" aria-label="Find entrant or fixture" placeholder="Find entrant or fixture…" type="search"><select id="stage-filter" aria-label="Stage"><option value="">All stages</option></select><select id="status-filter" aria-label="Status"><option value="">All statuses</option><option value="ready">Ready</option><option value="finished">Finished</option><option value="waiting">Waiting</option><option value="bye">Bye</option><option value="inactive">Inactive</option></select></div>
+          <div class="table-wrap"><table><thead><tr><th>Fixture</th><th>Suggested time / court</th><th>Home</th><th>Score</th><th>Away</th><th>Status</th><th><span class="sr-only">Action</span></th></tr></thead><tbody id="fixture-rows"></tbody></table></div>
+          <div class="pagination"><span id="page-info"></span><div><button id="previous-page" class="small">Previous</button><button id="next-page" class="small">Next</button></div></div>
+          <details id="bracket-section"><summary>Bracket overview</summary><div id="bracket-board" class="bracket-board"></div></details>
+          <details><summary>Withdraw an entrant</summary><p class="hint">Ready games against active entrants become forfeits. Two withdrawn entrants require an organizer decision. Earlier results remain. Undo restores the previous state.</p><div class="toolbar"><select id="withdraw-id" aria-label="Entrant to withdraw"></select><button id="withdraw" class="danger">Withdraw</button></div></details>
+          <div class="panel-footer"><button data-action="export" data-id="fixtures-csv" class="text-button">Export fixtures CSV ↗</button><button data-action="export" data-id="report" class="text-button">Export event report ↗</button></div>
         </section>
+        <section id="panel-standings" class="card panel" role="tabpanel" hidden><div class="section-heading"><h3>Every position, explained.</h3><button data-action="export" data-id="standings-csv" class="secondary">Export CSV</button></div><p id="standings-note" class="hint"></p><div id="standings-tables"></div></section>
+        <section id="panel-schedule" class="card panel" role="tabpanel" hidden><h3>Suggested full timetable</h3><p class="muted">Generated when the competition is created and refreshed after results. Games stay within the daily window and leave rest between possible opponents. Times are planning suggestions; export the CSV before publishing a fixed schedule.</p><div class="schedule-fields"><label>Courts<input id="courts" type="number" min="1" max="32" value="2"></label><label>Game minutes<input id="duration" type="number" min="1" max="360" value="30"></label><label>Rest minutes<input id="rest" type="number" min="0" max="1440" value="10"></label><label>Start each day<input id="start-time" type="time" value="09:00"></label><label>Planning days<input id="planning-days" type="number" min="1" max="365" value="365"></label><label>Finish each day<input id="finish-time" type="time" value="22:00"></label></div><div class="toolbar"><button id="plan-schedule" class="primary">Update timetable</button><button id="export-schedule" class="secondary" disabled>Export schedule CSV</button></div><p id="schedule-summary" class="hint"></p><div class="table-wrap"><table><thead><tr><th>Fixture</th><th>Match</th><th>Court</th><th>Day / time</th><th>Score</th></tr></thead><tbody id="schedule-rows"></tbody></table></div><p id="schedule-unplaced" class="hint"></p></section>
+        <section id="panel-rules" class="card panel" role="tabpanel" hidden><div class="eyebrow">SCORING PROFILE</div><h3 id="rules-title"></h3><p id="rules-scope" class="rule-scope"></p><dl id="rules-values" class="rule-grid"></dl><h4>Ranking order</h4><p id="rules-order" class="criteria"></p><p id="rules-source"></p><p class="hint">Club Swiss supports score-group proximity, no repeat pairings and at most one full-point bye. It is not a FIDE Dutch implementation. Rule presets cover scoring and selected table policies; they do not certify a competition under a federation's complete regulations.</p></section>
       </section>
-      <section class="routes panel">
-        <div class="panel-head"><div><p class="eyebrow">DETERMINISTIC MOCKS</p><h2>Routes</h2></div><button id="sample-route-button" class="ghost">Load sample</button></div>
-        <div class="route-layout"><div id="route-list" class="route-list"></div><div class="editor"><label for="route-json">Route JSON</label><textarea id="route-json" spellcheck="false"></textarea><button id="save-route-button">Validate &amp; save route</button></div></div>
-      </section>
-    </main>
-    <footer><span>MoonReplay 0.1.0</span><span>Capture · mock · replay · compare · powered by MoonBit</span></footer>
-  </body>
+    </section>
+  </main>
+  <footer class="site-footer"><span>MoonTourney · portable competition rules in MoonBit</span><span>Offline after loading · no analytics · MIT</span></footer>
+</div>
+<dialog id="result-dialog">
+  <form id="result-form"><div class="eyebrow">RECORD A RESULT</div><h2 id="result-title"></h2><p id="result-fixture" class="muted"></p><p id="result-help" class="hint"></p><p id="dialog-notice" class="notice" role="alert" hidden></p><div id="score-inputs" class="field-pair"><label>Home score<input id="home-score" type="number" min="0" max="10000" value="0" required></label><label>Away score<input id="away-score" type="number" min="0" max="10000" value="0" required></label></div><div id="set-inputs" hidden><label>Set / map scores<input id="set-scores" placeholder="21-18, 19-21, 21-15"></label><p class="hint">Comma-separated home-away scores, in playing order. For esports, enter each map as 1-0 or 0-1. Chess uses 1-0, 0-1, or 1-1 for a draw.</p></div><label id="decider-input" hidden>Tiebreak winner (tied knockout)<select id="decider"><option value="">No tiebreak</option><option value="1">Home</option><option value="2">Away</option></select></label><p class="hint">Editing a result clears dependent results. Group and league edits remove the knockout; Swiss edits remove later rounds.</p><div class="toolbar"><button type="submit" class="primary">Save result</button><button type="button" id="cancel-result" class="secondary">Cancel</button></div><div class="dialog-actions"><button type="button" data-action="forfeit" data-id="1" class="text-button">Home wins by forfeit</button><button type="button" data-action="forfeit" data-id="2" class="text-button">Away wins by forfeit</button><button type="button" id="clear-result" data-action="clear" class="danger">Clear result</button></div></form>
+</dialog>
+<dialog id="export-dialog" class="export-dialog"><div class="eyebrow">REVIEW YOUR EXPORT</div><h2 id="export-title"></h2><p class="hint">Download a file or copy the text. JSON snapshots can be imported into MoonTourney later.</p><p id="export-notice" class="notice" role="status" hidden></p><label>Export preview<textarea id="export-content" rows="12" readonly spellcheck="false"></textarea></label><div class="toolbar"><button id="download-export" class="primary">Download file</button><button id="copy-export" class="secondary">Copy text</button><button id="cancel-export" class="secondary">Close</button></div></dialog></body>
 </html>

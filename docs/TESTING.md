@@ -1,51 +1,52 @@
-# Testing
+# Validation strategy
 
-MoonReplay uses strict cross-target checks and behavior-oriented tests.
+## Core behavior suite
 
-## Full verification
+The MoonBit suite checks invariants and edge cases rather than only snapshotting output:
 
-```text
+- Round-robin pair coverage, unique round participation, odd-field byes and reversed return legs.
+- Single-elimination match counts, pending-versus-vacant slots, seed placement and third place.
+- Double-elimination completion across field sizes 2–24, both reset outcomes, and exactly two losses for every non-champion.
+- Group size balance, completed-group requirements, qualification ties, cross-group openings and knockout invalidation.
+- Sport terminal scores, hard caps, deciding-game targets, aggregate validation, overtime outcomes, shootouts, canonical forfeits and independent playoff series.
+- Ranking ties, static head-to-head mini-tables, exact large ratios, played-opponent Buchholz / SB, rally and set totals.
+- Multi-round Swiss no-repeat pairing, single byes, field exhaustion, withdrawals and re-pairing after edits.
+- Two-leg group qualification and fixed-length Swiss-to-knockout transitions, including stale bracket clearing.
+- Single- and two-leg league qualification, equal-rank blocking, seeded playoff completion, snapshot round trips and bracket invalidation after a league score edit.
+- Open-score draws, explicit knockout deciders and rejection of invalid deciders outside elimination.
+- Season archive round trips, mixed-sport collections, fresh-season cloning, title history, duplicate identity rejection and CLI archive operations.
+- New-season roster regeneration before scoring, rejection after scoring and CLI archive updates without changing the previous season.
+- Independently validated court/rest plans, multi-day playing windows, partial horizons, dependency order and malformed allocations.
+- JSON schema validation, fractional numbers, duplicate identities/results, unknown actions, snapshot round trips, history branches and CSV formula protection.
+
+```sh
 moon fmt --check
 moon check --target js --deny-warn
 moon test --target js --deny-warn
-moon check --target native --deny-warn
 moon test --target native --deny-warn
-moon build cmd/moonreplay --target native --release
+moon test --target wasm-gc --deny-warn
+node scripts/build.mjs
+node tests/smoke.mjs
 ```
 
-## Portable core coverage
+`scripts/check.ps1` runs this sequence on Windows. If a locally assembled toolchain lacks a core target bundle, run `moon bundle --target wasm-gc` from its `lib/core` directory before using that target. This is toolchain preparation, not a project package dependency.
 
-The 26 core tests cover:
+## Integration smoke
 
-- target, path, query, and header normalization;
-- percent decoding and dot-segment handling;
-- wildcard and template paths;
-- method, header, query, text-body, exact-JSON, and JSON-subset matching;
-- priority and specificity route selection;
-- path and JSON-body response templates;
-- default and custom sensitive-data redaction;
-- nested JSON, text, status, and header diffs;
-- volatile-header defaults;
-- history predicates, order, and pagination;
-- workspace diagnostics;
-- cURL generation.
+The Node smoke test exercises the compiled MoonBit CLI and engine with a test-owned temporary directory: create, record, inspect, schedule, export, no-overwrite behavior, malformed JSON, unknown commands and a clinched basketball series. It does not duplicate tournament calculations in JavaScript.
 
-## Native integration coverage
+## Web acceptance
 
-The 10 Native tests cover:
+Check desktop and narrow layouts. Fill an example, create a competition with automatic season archiving, inspect the generated fixtures and suggested daily timetable, reject an invalid score, record a legal score from the fixtures or timetable, inspect automatic advancement, undo and redo, change filters, read ranking explanations, update courts and daily hours, export and import a snapshot, and reload to restore browser state. Browser history is intentionally not persisted. Check that changing a result refreshes the suggested timetable and its export.
 
-- workspace initialization and explicit replacement;
-- create/replace route semantics;
-- rejection of invalid routes without damaging healthy state;
-- route removal;
-- monotonic history sequences;
-- bounded retention;
-- persisted history filtering;
-- lookup and clear operations;
-- an in-process HTTP server/client round trip with method, header, body, status, and response header assertions.
+## Known limits
 
-Temporary directories are removed on both success and failure. Network tests bind to an ephemeral loopback port and do not access the public internet.
+Local validation on 29 September 2026: 60 tests passed on each of JavaScript, Native and Wasm GC; strict checks, formatting, release builds and the CLI / engine smoke passed. The tested toolchain reports `moon 0.1.20260904`, `moonc v0.10.12+1634b282e`; Node is `22.22.0`. Desktop and narrow layouts, score rejection, advancement, undo/redo, standings, scheduling, reload restore, JSON export preview and JSON import were exercised in the browser. A native file-download event was not confirmed in the in-app browser; export preview and copying remain available. GitHub Actions has not yet run for this unpushed change.
 
-## CI
+Local validation on 16 October 2026: ten formats, 72 tests on each of JavaScript, Native and Wasm GC; strict checks, formatting, release builds and CLI / engine smoke passed. Combined formats, season collections, daily scheduling windows and roster changes were exercised through library and CLI tests. The web interface compiled, but its new season and timetable controls have not yet been manually checked in a browser: the available in-app browser timed out when opening the local loopback server.
 
-GitHub Actions installs the official toolchain, updates Mooncakes dependencies, performs strict JavaScript and Native checks, runs both test suites, builds the release executable, and verifies at least 4,000 tracked lines of hand-written MoonBit source.
+Browser review on 17 October 2026: the new desk was opened at a local loopback URL. Desktop and 390-pixel layouts were inspected, a narrow-screen horizontal overflow was fixed, the event shortcut was checked, and entering then undoing a score updated the new progress indicator from 0/28 to 1/28 and back. The full result-entry matrix, all tournament formats and native download behavior were not rechecked in this visual pass.
+
+Current formatted MoonBit source: approximately 6,018 implementation lines plus 1,600 test lines. Counts include normal formatting and comments; they exclude generated output, dependencies and toolchains. Source size is reported for review, not enforced as a quality test.
+
+Swiss search is bounded and not a formal FIDE certification. Schedule efficiency is not globally optimized. The current suite is not a comprehensive federation compliance suite, a security audit, or a benchmark at unrestricted scale. Refer to [RULES.md](RULES.md) for the behavior promised by each profile.

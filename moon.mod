@@ -1,17 +1,13 @@
-name = "moonreplay/core"
+name = "moontourney/core"
 
 version = "0.1.0"
-
-import {
-  "moonbitlang/async@0.21.3",
-}
 
 readme = "README.md"
 
 license = "MIT"
 
-keywords = [ "http", "webhook", "mock", "replay", "testing" ]
+keywords = [ "tournament", "fixtures", "standings", "sports", "bracket" ]
 
-description = "Local HTTP capture, mock, replay, and response-diff workbench powered by MoonBit"
+description = "Portable tournament fixtures, sport scoring, standings and competition planning in MoonBit"
 
-preferred_target = "native"
+preferred_target = "js"

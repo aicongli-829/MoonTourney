@@ -1,0 +1,7 @@
+{
+  "title": "Badminton night",
+  "rules": "badminton-21",
+  "format": "single-elimination",
+  "thirdPlace": true,
+  "entrants": ["Aria", "Ben", "Cleo", "Dev", "Emi", "Finn"]
+}

@@ -4,6 +4,16 @@ _build/
 target/
 node_modules/
 .moonreplay/
+.moonfixture/
+.moontourney/
+# Default local outputs from the documented CLI walkthrough.
+/event.json
+/updated.json
+/round1.json
+/courts.csv
+/schedule.csv
+/event-report.md
+/report.md
 .scratch/
 .private/
 dist/

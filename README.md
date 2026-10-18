@@ -1,171 +1,119 @@
-# MoonReplay
+# MoonTourney
 
-**MoonReplay is a local HTTP capture, mock, replay, and response-diff workbench written in MoonBit.** It gives an application a disposable local endpoint, records what actually arrived, returns deterministic mock responses, and replays a captured request against a real service to explain what changed.
+**A reusable MoonBit competition engine and a local web desk for clubs, campuses and community events.**
 
-It is useful when developing webhook consumers, frontend applications, mobile clients, third-party integrations, callback handlers, and HTTP APIs. All history stays on the developer's machine, and common credentials are redacted before persistence.
+An eight-team football cup needs more than a draw: someone must generate group fixtures, apply the scoring policy, settle qualification ties, advance the correct entrants and update the bracket when an earlier result changes. MoonTourney connects those operations through one portable library.
 
-## The problem
+![Competition desk showing a synthetic best-of-five map result](docs/images/competition-desk.png)
 
-HTTP integration failures are difficult to reproduce from a screenshot or a log line. Developers often need the exact method, path, query parameters, headers, and body that reached an endpoint. They then rebuild the request manually, lose the original response, and compare a second result by eye.
+## What works
 
-MoonReplay turns that workflow into four repeatable steps:
+- **Ten formats:** round robin, double round robin, single elimination, double elimination with a conditional grand-final reset, single- or double-leg groups followed by knockout, single- or double-leg league followed by knockout, Club Swiss, and a fixed-length Swiss stage followed by knockout.
+- **Ten scoring profiles:** open score for organizer-defined activities, football, basketball, indoor volleyball, beach volleyball, badminton 21 points, badminton 15-point alternative, table tennis, chess and esports map series.
+- Seeded brackets, automatic byes, optional third place, balanced group sizes, configurable qualification and best-of lengths.
+- Terminal-score validation, set aggregates, football shootout decisions and canonical forfeits.
+- Configurable rankings: points, wins, difference, scored, head-to-head mini-table, set/score ratios, Buchholz, Buchholz Cut-1, Sonneborn-Berger and explicit seed order.
+- Dependent-result invalidation, withdrawals, 100-step session undo/redo and versioned JSON snapshots.
+- Automatic suggested timetables with daily playing hours, court allocation, participant rest and dependency checks; CSV and Markdown exports.
+- An English web interface with filters, bracket overview, standings explanations, JSON import/export, browser persistence and print layout.
+- A season archive for Spring, Summer and later events: independent snapshots, one-click next-season setup, historical winners and participation, plus JSON / CSV export. Different seasons may use different sports and formats; scores are not mixed across incompatible rules.
 
-1. point the caller at `http://127.0.0.1:4173/<any-path>`;
-2. inspect the captured exchange in a local web interface;
-3. add a deterministic mock rule or replay the request to a target URL;
-4. inspect a structural response diff instead of comparing raw text manually.
+### Format limits
 
-## What it provides
+| Format | Entrants | Behavior |
+|---|---:|---|
+| Round robin / double round robin | 2–128 | Every pair plays once / twice, reversed home and away |
+| League → knockout / home-away league → knockout | 2–128 | Every pair plays once / twice; finish the table, then advance the top 2/4/8/… active entrants into a seeded bracket. Unresolved seeding or cutoff ties block advancement |
+| Single elimination | 2–128 | Power-of-two seeded bracket with byes; optional third place |
+| Double elimination | 2–128 | Two losses eliminate; lower-bracket champion can trigger a final reset |
+| Groups → knockout | 2–16 groups, at least two entrants each | Snake distribution; qualification cutoff ties block advancement |
+| Home/away groups → knockout | 2–16 groups, at least two entrants each | Each pair plays twice with reversed sides before qualification |
+| Club Swiss | 2–64 | No repeat opponents, score proximity, soft side balance, at most one full-point bye |
+| Swiss → knockout | 2–64; 1 to entrant count minus one Swiss rounds | Configured rounds, then top 2/4/8/… active entrants enter a seeded knockout; unresolved seeding and cutoff ties block advancement |
 
-- capture every local HTTP method, path, query, header, and bounded request body;
-- redact authorization headers, cookies, API keys, tokens, passwords, and nested JSON secrets before writing history;
-- match mock routes by method, exact/prefix/template/wildcard path, query, headers, and body;
-- match JSON bodies exactly or as structural subsets;
-- render response templates from path parameters, query values, headers, and JSON body fields;
-- configure status, headers, body, and a bounded response delay;
-- replay a captured request to an absolute HTTP or HTTPS URL;
-- compare status, headers, JSON structure, arrays, or the first changed text line;
-- filter history by method, status family, path, header, body text, tag, or sequence range;
-- export any captured request as a reproducible cURL command;
-- validate route files before saving them;
-- operate through a Native CLI or a local MoonBit web interface.
+Presets implement **scoring subsets and disclosed organizer policies**, rather than complete federation regulations. Club Swiss is not FIDE Dutch pairing. Basketball does not implement the complete recursive Appendix D classification. Read [the rules catalog](docs/RULES.md) before selecting a profile.
 
-## Quick start
+## Run the web desk
 
-Requirements: a current stable MoonBit toolchain and a Native C toolchain.
+Requirements: the [official MoonBit toolchain](https://www.moonbitlang.com/download/) and Node.js 22 or later. No npm packages or external Mooncakes packages are required.
 
-```text
-moon update
-moon run --target native cmd/moonreplay -- init
-moon run --target native cmd/moonreplay -- serve
+```sh
+node scripts/build.mjs
+node host/serve.mjs
 ```
 
-Open `http://127.0.0.1:4173`, then send a request:
+Open **http://127.0.0.1:4173**. The development server only serves the built page on loopback. All event calculations and data storage run in your browser.
 
-```text
-curl -i -X POST http://127.0.0.1:4173/hooks/orders/42 \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer local-secret" \
-  --data '{"event":"order.paid","token":"private-value"}'
+1. Select a sport and format, paste one entrant per line, and optionally name the season. Leave **Save this competition as a season** checked to archive it automatically.
+2. Select **Generate competition & schedule**. The Fixtures view shows all currently knowable rounds, suggested times and courts. The Court schedule tab shows the timetable; change its daily hours or court count and select **Update timetable** if needed.
+3. After each game, select **Score** beside that fixture and enter the real result. Completed scores appear in both views and standings update automatically. For set-based sports, enter scores such as `21-18, 19-21, 21-15`.
+4. Completed group and league stages advance automatically when ranking ties are resolved. Swiss → knockout automatically generates the next pairing or playoff after each completed round. Open-ended Club Swiss uses **Next Swiss round** when the organizer is ready.
+5. In **Season archive**, enter the next season name and select **Start next season** to reuse the format and entrants with empty scores. Edit the entrant list and select **Apply entrant list** before recording scores if teams changed. Export the full series JSON as a backup.
+
+Actual results are never invented by the planner. Elimination opponents may be shown as winners of earlier fixtures; group/league playoffs and later Swiss pairings are generated only after the prerequisite results are known. Suggested times can change when results arrive, so export a timetable before publishing it as a fixed commitment.
+
+The browser restores the latest event on reload. Undo history is held in memory and resets on reload. Export JSON for backups; storage can be cleared by browser settings. The web app contains no external assets, tracking or account service.
+
+The season archive is separate from a single-event snapshot. Importing a series JSON restores its seasons; importing an event JSON opens one standalone event. Up to 32 seasons are supported. Participant history matches names exactly, so use consistent names across years. Cross-sport points are deliberately kept separate; the series overview records appearances and titles.
+
+## CLI
+
+```sh
+node dist/moontourney.mjs create examples/badminton-cup.json event.json
+node dist/moontourney.mjs record event.json examples/badminton-result.json updated.json
+node dist/moontourney.mjs inspect updated.json
+node dist/moontourney.mjs schedule updated.json examples/schedule.json schedule.csv
+node dist/moontourney.mjs export updated.json report event-report.md
+node dist/moontourney.mjs create examples/community-league-playoff.json league.json
+node dist/moontourney.mjs season-new "Community 2026" seasons-empty.json
+node dist/moontourney.mjs season-add seasons-empty.json league.json "Spring 2026" seasons-spring.json
+node dist/moontourney.mjs season-clone seasons-spring.json season-1 "Summer 2026" seasons-summer.json
+node dist/moontourney.mjs season-list seasons-summer.json
 ```
 
-The request appears in the traffic list. The stored copy contains `[REDACTED]` in place of the authorization value and JSON token.
+Output files must be new paths. Existing snapshots are never overwritten. Omit an output path to use stdout. See [CLI commands](docs/CLI.md) and the [JSON API](docs/API.md).
 
-## Add a mock route
+## Reuse the library
 
-Save this as `order-webhook.json`, or use the route editor in the web interface:
+The root package is `moontourney/core`; the module is prepared locally and has **not yet been published to Mooncakes**. Integrations can use the workspace package or the built `dist/engine.mjs` JSON interface.
 
-```json
-{
-  "id": "order-webhook",
-  "name": "Order webhook",
-  "enabled": true,
-  "priority": 10,
-  "match": {
-    "methods": ["POST"],
-    "path": "/hooks/orders/{orderId}",
-    "pathMode": "template",
-    "headers": [],
-    "query": [],
-    "body": {
-      "mode": "json-subset",
-      "value": "{\"event\":\"order.paid\"}"
-    }
-  },
-  "response": {
-    "status": 202,
-    "headers": [
-      { "name": "Content-Type", "value": "application/json" }
-    ],
-    "body": "{\"accepted\":true,\"orderId\":\"{{path.orderId}}\"}",
-    "delayMs": 0
-  }
-}
+```moonbit
+let participants = @core.participants_from_names(["Aurora", "Bolt", "Comet", "Drift"])
+let rules = @core.preset("football")
+let event = @core.create_tournament("Club cup", @core.SingleElimination, rules, participants)
+let played = @core.record_result(event, @core.score_result("w-1-1", 2, 1))
+let table = @core.standings(played)
 ```
 
-```text
-moon run --target native cmd/moonreplay -- routes add order-webhook.json
+These functions raise `FixtureError` for invalid input. See [library architecture](docs/ARCHITECTURE.md) for snapshot ownership and the dependency graph.
+
+```js
+import { dispatch_json } from './dist/engine.mjs';
+const reply = JSON.parse(dispatch_json(JSON.stringify({
+  action: 'create', title: 'Friday chess club', rules: 'chess', format: 'swiss',
+  entrants: ['Alex', 'Blair', 'Casey', 'Drew', 'Eden']
+})));
 ```
 
-The same request now receives HTTP 202 with the captured `orderId` inserted into the response.
+## Validate
 
-## Replay and compare
-
-Use an exchange identifier shown by `history list`:
-
-```text
-moon run --target native cmd/moonreplay -- history list --method POST
-moon run --target native cmd/moonreplay -- replay <exchange-id> http://localhost:3000/webhooks/orders/42
-```
-
-The result contains the live response and a field-level diff against the recorded response. Volatile headers such as `Date`, `Server`, `Connection`, and `Content-Length` are ignored by default.
-
-## Architecture
-
-```text
-caller / webhook producer
-           │
-           ▼
-MoonBit Native HTTP server ──► redaction ──► atomic local history
-           │                                      │
-           ├── route matcher ──► template response│
-           │                                      ▼
-           └────────────────────────────── local web console
-                                                  │
-captured request ──► HTTP replay client ──► response diff
-```
-
-The portable core contains normalization, matching, templating, redaction, validation, filtering, cURL export, and response comparison. It compiles for Native and JavaScript. Native adapters provide filesystem persistence, the HTTP server/client, and the CLI. The browser application is written in MoonBit with a narrow DOM/fetch FFI layer.
-
-See [Architecture](docs/ARCHITECTURE.md) for data flow and trust boundaries.
-
-## Scope boundary
-
-MoonReplay does not index documents, rank text, perform semantic retrieval, or provide RAG. Its inputs and outputs are HTTP exchanges and deterministic mock rules. This keeps the project separate from MoonSearch, MoonRetrieve, and other local search engines.
-
-It also does not attempt to replace a production reverse proxy or API gateway. Version 0.1 binds to loopback, limits request bodies, and is designed for local development and CI fixtures.
-
-## Data and safety defaults
-
-- the server binds to `127.0.0.1`;
-- administrative writes require a random browser session token;
-- browser requests validate `Host` and `Origin`;
-- request bodies are limited to 1 MiB;
-- response delays are limited to 30 seconds;
-- history retention is bounded and defaults to 2,000 exchanges;
-- persistence uses write, sync, and atomic rename;
-- sensitive data is redacted before persistence;
-- replay omits `Host`, `Content-Length`, and `Connection` from captured headers.
-
-Review [Security](SECURITY.md) before replaying data to a shared or production endpoint.
-
-## Quality status
-
-- 26 portable core tests cover matching, templates, redaction, diffs, filters, validation, and cURL export.
-- 10 Native integration tests cover atomic workspaces, route replacement, history retention, filtering, and a real HTTP replay round trip.
-- JavaScript and Native builds run with warnings denied.
-- The repository contains more than 4,000 lines of hand-written MoonBit source; generated output and dependencies are excluded.
-- The current tree contains no MoonSeek search implementation; its earlier history is retained for repository transparency.
-
-Run all checks:
-
-```text
+```sh
 moon fmt --check
 moon check --target js --deny-warn
 moon test --target js --deny-warn
-moon check --target native --deny-warn
 moon test --target native --deny-warn
-moon build cmd/moonreplay --target native --release
+moon test --target wasm-gc --deny-warn
+node scripts/build.mjs
+node tests/smoke.mjs
 ```
 
-## Documentation
+On Windows, `powershell -ExecutionPolicy Bypass -File scripts/check.ps1` runs the full sequence and uses `.tools/moon` when present. This local toolchain is ignored by Git. The core is portable; the web and CLI adapters currently target JavaScript. Native core tests require a working C toolchain.
 
-- [CLI reference](docs/CLI.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Necessity and value](docs/VALUE_PROOF.md)
-- [MoonBit ecosystem contribution](docs/ECOSYSTEM.md)
-- [Testing](docs/TESTING.md)
-- [Source provenance](docs/PROVENANCE.md)
-- [Roadmap](ROADMAP.md)
+## Project evidence
 
-MoonReplay is released under the [MIT License](LICENSE).
+- [Concrete use cases and acceptance examples](docs/VALUE_PROOF.md)
+- [Ecosystem search scope and limitations](docs/ECOSYSTEM.md)
+- [Rule sources and compatibility boundaries](docs/RULES.md)
+- [Test strategy](docs/TESTING.md), [provenance](docs/PROVENANCE.md), [roadmap](ROADMAP.md)
+
+MIT licensed. Generated JavaScript, toolchains, private competition application materials and the walkthrough's default output files are excluded from Git. Put other private snapshots in `.private/` or `.moontourney/`.

@@ -1,0 +1,9 @@
+{
+  "title": "Campus home-and-away cup",
+  "rules": "football",
+  "format": "groups-double",
+  "entrants": ["Aurora", "Bolt", "Comet", "Drift", "Echo", "Flux", "Glacier", "Halo"],
+  "groupCount": 2,
+  "qualifiers": 2,
+  "seedTieBreak": true
+}
