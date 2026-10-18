@@ -45,7 +45,7 @@ test "group snapshot cannot substitute an unqualified knockout entrant" {
       ),
     ),
   )
-  let qualified : Array[Int] = []
+  let qualified : Array[Int32] = []
   for f in t.fixtures {
     if f.stage == "knockout" && f.round == 1 {
       for slot in [f.home, f.away] {

@@ -2,9 +2,9 @@
 /// Circle-method rotation gives every pair one game and every odd field a bye.
 pub fn round_robin(
   participants : Array[Participant],
-  double? : Bool = false,
-  prefix? : String = "rr",
-  stage? : String = "league",
+  double~ : Bool = false,
+  prefix~ : String = "rr",
+  stage~ : String = "league",
 ) -> Array[Fixture] raise FixtureError {
   validate_participants(participants)
   let ordered = seeded_participants(participants)
@@ -63,7 +63,7 @@ pub fn round_robin(
 /// Snake distribution keeps high seeds apart without depending on ID values.
 pub fn distribute_groups(
   participants : Array[Participant],
-  count : Int,
+  count : Int32,
 ) -> Array[Array[Participant]] raise FixtureError {
   validate_participants(participants)
   require(count >= 2 && count <= 16, "Use between 2 and 16 groups.")
@@ -84,8 +84,8 @@ pub fn distribute_groups(
 ///|
 pub fn group_fixtures(
   participants : Array[Participant],
-  count : Int,
-  double? : Bool = false,
+  count : Int32,
+  double~ : Bool = false,
 ) -> Array[Fixture] raise FixtureError {
   let groups = distribute_groups(participants, count)
   let fixtures : Array[Fixture] = []

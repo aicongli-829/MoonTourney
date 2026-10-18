@@ -4,13 +4,13 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
-const bundled = join(root, '.tools', 'moon');
 const executable = process.platform === 'win32' ? 'moon.exe' : 'moon';
-const local = join(bundled, 'bin', executable);
-const env = existsSync(local) ? { ...process.env, MOON_HOME: bundled } : process.env;
+const configured = process.env.MOON_HOME;
+const local = configured ? join(configured, 'bin', executable) : null;
+const moon = local && existsSync(local) ? local : executable;
 for (const target of ['', 'webui', 'cmd/moontourney']) {
   const args = ['build', ...(target ? [target] : []), '--target', 'js', '--release', '--deny-warn'];
-  const result = spawnSync(existsSync(local) ? local : executable, args, { cwd: root, env, stdio: 'inherit' });
+  const result = spawnSync(moon, args, { cwd: root, stdio: 'inherit' });
   if (result.error || result.status !== 0) {
     console.error(result.error?.message ?? 'MoonBit build failed.');
     process.exit(result.status || 1);

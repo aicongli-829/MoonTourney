@@ -6,7 +6,7 @@ fn require(condition : Bool, message : String) -> Unit raise FixtureError {
 }
 
 ///|
-fn compare_int(a : Int, b : Int) -> Int {
+fn compare_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     -1
   } else if a > b {
@@ -17,7 +17,7 @@ fn compare_int(a : Int, b : Int) -> Int {
 }
 
 ///|
-fn abs_int(value : Int) -> Int {
+fn abs_int(value : Int32) -> Int32 {
   if value < 0 {
     -value
   } else {
@@ -26,7 +26,7 @@ fn abs_int(value : Int) -> Int {
 }
 
 ///|
-fn max_int(a : Int, b : Int) -> Int {
+fn max_int(a : Int32, b : Int32) -> Int32 {
   if a > b {
     a
   } else {
@@ -35,7 +35,7 @@ fn max_int(a : Int, b : Int) -> Int {
 }
 
 ///|
-fn min_int(a : Int, b : Int) -> Int {
+fn min_int(a : Int32, b : Int32) -> Int32 {
   if a < b {
     a
   } else {
@@ -100,8 +100,8 @@ pub fn validate_participants(
     participants.length() <= 128,
     "At most 128 participants are supported.",
   )
-  let ids : Map[Int, Bool] = Map([])
-  let seeds : Map[Int, Bool] = Map([])
+  let ids : Map[Int32, Bool] = Map([])
+  let seeds : Map[Int32, Bool] = Map([])
   for p in participants {
     require(
       p.id > 0 && p.id <= 1000000,
@@ -144,7 +144,10 @@ pub fn participants_from_names(
 }
 
 ///|
-pub fn participant_name(participants : Array[Participant], id : Int) -> String {
+pub fn participant_name(
+  participants : Array[Participant],
+  id : Int32,
+) -> String {
   for p in participants {
     if p.id == id {
       return p.name
@@ -154,7 +157,7 @@ pub fn participant_name(participants : Array[Participant], id : Int) -> String {
 }
 
 ///|
-fn next_power_two(value : Int) -> Int {
+fn next_power_two(value : Int32) -> Int32 {
   let mut size = 2
   while size < value {
     size = size * 2
@@ -173,12 +176,12 @@ fn find_fixture(fixtures : Array[Fixture], id : String) -> Fixture? {
 }
 
 ///|
-fn same_pair(a : Int, b : Int, c : Int, d : Int) -> Bool {
+fn same_pair(a : Int32, b : Int32, c : Int32, d : Int32) -> Bool {
   (a == c && b == d) || (a == d && b == c)
 }
 
 ///|
-pub fn display_points(points : Int, scale : Int) -> String {
+pub fn display_points(points : Int32, scale : Int32) -> String {
   if scale == 2 {
     (points / 2).to_string() + (if points % 2 == 0 { "" } else { ".5" })
   } else {

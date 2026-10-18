@@ -142,7 +142,7 @@ test "import rejects duplicate results and results for unresolved games" {
     _ => Map([])
   }
   let result = result_to_json(score_result("w-1-1", 1, 0))
-  fields["results"] = [result, result].to_json()
+  fields["results"] = Json([result, result])
   assert_true(rejects(() => ignore(tournament_from_json(Json::object(fields)))))
 }
 

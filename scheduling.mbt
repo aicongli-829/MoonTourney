@@ -1,5 +1,9 @@
 ///|
-fn possible_entrants(t : Tournament, slot : Slot, depth : Int) -> Array[Int] {
+fn possible_entrants(
+  t : Tournament,
+  slot : Slot,
+  depth : Int32,
+) -> Array[Int32] {
   if depth > t.fixtures.length() {
     return []
   }
@@ -31,13 +35,13 @@ fn possible_entrants(t : Tournament, slot : Slot, depth : Int) -> Array[Int] {
 /// Times are offsets in minutes, so no local time-zone assumptions enter the core.
 pub fn schedule(
   t : Tournament,
-  courts : Int,
-  duration : Int,
-  rest? : Int = 10,
-  start? : Int = 0,
-  horizon? : Int = 1000000,
-  day_start? : Int = 0,
-  day_end? : Int = 1440,
+  courts : Int32,
+  duration : Int32,
+  rest~ : Int32 = 10,
+  start~ : Int32 = 0,
+  horizon~ : Int32 = 1000000,
+  day_start~ : Int32 = 0,
+  day_end~ : Int32 = 1440,
 ) -> Schedule raise FixtureError {
   validate_fixtures(t)
   require(courts >= 1 && courts <= 32, "Use between 1 and 32 courts.")
@@ -59,8 +63,8 @@ pub fn schedule(
     "Game duration must fit inside the daily playing window.",
   )
   let available = Array::make(courts, start)
-  let ends : Map[String, Int] = Map([])
-  let last_played : Map[Int, Int] = Map([])
+  let ends : Map[String, Int32] = Map([])
+  let last_played : Map[Int32, Int32] = Map([])
   let allocations : Array[Allocation] = []
   let unscheduled : Array[String] = []
   for fixture in t.fixtures {
@@ -136,11 +140,11 @@ pub fn schedule(
 
 ///|
 fn align_playing_window(
-  time : Int,
-  duration : Int,
-  day_start : Int,
-  day_end : Int,
-) -> Int {
+  time : Int32,
+  duration : Int32,
+  day_start : Int32,
+  day_end : Int32,
+) -> Int32 {
   let day = time / 1440
   let clock = time % 1440
   if clock < day_start {
@@ -157,7 +161,7 @@ fn align_playing_window(
 pub fn validate_schedule(
   t : Tournament,
   allocations : Array[Allocation],
-  rest : Int,
+  rest : Int32,
 ) -> Array[String] {
   let errors : Array[String] = []
   if rest < 0 || rest > 1440 {

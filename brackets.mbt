@@ -1,6 +1,6 @@
 ///|
 /// Standard balanced seed placement: 1 vs 8, 4 vs 5, 2 vs 7, 3 vs 6.
-pub fn bracket_seed_order(size : Int) -> Array[Int] raise FixtureError {
+pub fn bracket_seed_order(size : Int32) -> Array[Int32] raise FixtureError {
   require(
     size >= 2 && size <= 128 && next_power_two(size) == size,
     "Bracket size must be a power of two up to 128.",
@@ -8,7 +8,7 @@ pub fn bracket_seed_order(size : Int) -> Array[Int] raise FixtureError {
   let mut seeds = [1, 2]
   while seeds.length() < size {
     let total = seeds.length() * 2 + 1
-    let expanded : Array[Int] = []
+    let expanded : Array[Int32] = []
     for seed in seeds {
       expanded.push(seed)
       expanded.push(total - seed)
@@ -21,7 +21,7 @@ pub fn bracket_seed_order(size : Int) -> Array[Int] raise FixtureError {
 ///|
 pub fn single_elimination(
   participants : Array[Participant],
-  third_place? : Bool = false,
+  third_place~ : Bool = false,
 ) -> Array[Fixture] raise FixtureError {
   validate_participants(participants)
   let ordered = seeded_participants(participants)
@@ -146,7 +146,7 @@ pub fn resolve_slot(tournament : Tournament, slot : Slot) -> ResolvedSlot {
 }
 
 ///|
-fn resolve_slot_at(t : Tournament, slot : Slot, depth : Int) -> ResolvedSlot {
+fn resolve_slot_at(t : Tournament, slot : Slot, depth : Int32) -> ResolvedSlot {
   if depth > t.fixtures.length() + 1 {
     return Pending
   }
@@ -204,7 +204,7 @@ pub fn fixture_state(t : Tournament, fixture : Fixture) -> FixtureState {
 }
 
 ///|
-pub fn champion(t : Tournament) -> Int? {
+pub fn champion(t : Tournament) -> Int32? {
   if t.format != SingleElimination &&
     t.format != DoubleElimination &&
     t.format != Groups &&
@@ -248,7 +248,7 @@ fn slot_dependency(slot : Slot) -> String? {
 pub fn validate_fixtures(t : Tournament) -> Unit raise FixtureError {
   require(t.fixtures.length() <= 20000, "Too many fixtures.")
   let ids : Map[String, Bool] = Map([])
-  let entrants : Map[Int, Bool] = Map([])
+  let entrants : Map[Int32, Bool] = Map([])
   for participant in t.participants {
     entrants[participant.id] = true
   }

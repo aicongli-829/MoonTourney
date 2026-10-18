@@ -64,7 +64,7 @@ pub fn fixtures_csv(t : Tournament) -> String {
 }
 
 ///|
-pub fn standings_csv(t : Tournament, stage? : String = "") -> String {
+pub fn standings_csv(t : Tournament, stage~ : String = "") -> String {
   let out = StringBuilder()
   out.write_string(
     "stage,rank,name,played,won,drawn,lost,points,scored,conceded,sets_won,sets_lost,byes\n",

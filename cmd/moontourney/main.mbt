@@ -148,11 +148,13 @@ fn run(args : Array[String]) -> Unit {
       None => return
     }
     let fields : Map[String, Json] = Map([])
-    fields["action"] = (if command == "season-list" {
-      "season-inspect"
-    } else {
-      command
-    }).to_json()
+    fields["action"] = Json(
+      if command == "season-list" {
+        "season-inspect"
+      } else {
+        command
+      },
+    )
     fields["collection"] = collection
     if args.length() > required {
       path = Some(args[required])
@@ -164,12 +166,12 @@ fn run(args : Array[String]) -> Unit {
           None => return
         }
         fields["tournament"] = event
-        fields["label"] = args[3].to_json()
+        fields["label"] = Json(args[3])
         mode = "collection"
       }
       "season-clone" => {
-        fields["sourceKey"] = args[2].to_json()
-        fields["label"] = args[3].to_json()
+        fields["sourceKey"] = Json(args[2])
+        fields["label"] = Json(args[3])
         mode = "collection"
       }
       "season-update" => {
@@ -177,24 +179,24 @@ fn run(args : Array[String]) -> Unit {
           Some(doc) => doc
           None => return
         }
-        fields["key"] = args[2].to_json()
+        fields["key"] = Json(args[2])
         fields["tournament"] = event
         mode = "collection"
       }
       "season-extract" => {
-        fields["key"] = args[2].to_json()
+        fields["key"] = Json(args[2])
         mode = "event"
       }
       "season-remove" => {
-        fields["key"] = args[2].to_json()
+        fields["key"] = Json(args[2])
         mode = "collection"
       }
       "season-rename" => {
-        fields["title"] = args[2].to_json()
+        fields["title"] = Json(args[2])
         mode = "collection"
       }
       "season-export" => {
-        fields["kind"] = args[2].to_json()
+        fields["kind"] = Json(args[2])
         mode = "content"
       }
       _ => ()
@@ -253,7 +255,7 @@ fn run(args : Array[String]) -> Unit {
       None => return
     }
     let fields : Map[String, Json] = Map([])
-    fields["action"] = command.to_json()
+    fields["action"] = Json(command)
     fields["tournament"] = event
     if args.length() > required {
       path = Some(args[required])
@@ -269,7 +271,7 @@ fn run(args : Array[String]) -> Unit {
         }
         fields["result"] = result
       }
-      "clear" => fields["fixtureId"] = args[2].to_json()
+      "clear" => fields["fixtureId"] = Json(args[2])
       "roster" => {
         let names = match load(args[2]) {
           Some(doc) => doc
@@ -284,7 +286,7 @@ fn run(args : Array[String]) -> Unit {
             return
           }
         }
-        fields["participantId"] = id.to_json()
+        fields["participantId"] = Json(id)
       }
       "schedule" => {
         let settings = match load(args[2]) {
@@ -302,7 +304,7 @@ fn run(args : Array[String]) -> Unit {
         mode = "csv"
       }
       "export" => {
-        fields["kind"] = args[2].to_json()
+        fields["kind"] = Json(args[2])
         mode = "content"
       }
       _ => ()

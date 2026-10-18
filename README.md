@@ -35,7 +35,7 @@ Presets implement **scoring subsets and disclosed organizer policies**, rather t
 
 ## Run the web desk
 
-Requirements: the [official MoonBit toolchain](https://www.moonbitlang.com/download/) and Node.js 22 or later. No npm packages or external Mooncakes packages are required.
+Requirements: the [official MoonBit toolchain](https://www.moonbitlang.com/download/) (tested with `moon 0.1.20261012`) and Node.js 22 or later. No npm packages or external Mooncakes packages are required.
 
 ```sh
 node scripts/build.mjs
@@ -107,7 +107,7 @@ node scripts/build.mjs
 node tests/smoke.mjs
 ```
 
-On Windows, `powershell -ExecutionPolicy Bypass -File scripts/check.ps1` runs the full sequence and uses `.tools/moon` when present. This local toolchain is ignored by Git. The core is portable; the web and CLI adapters currently target JavaScript. Native core tests require a working C toolchain.
+On Windows, `powershell -ExecutionPolicy Bypass -File scripts/check.ps1` runs the full sequence and uses `.tools/moon-ci-latest` when present, otherwise the installed `moon` command. This local toolchain is ignored by Git. The core is portable; the web and CLI adapters currently target JavaScript. Native core tests require a working C toolchain.
 
 ## Project evidence
 

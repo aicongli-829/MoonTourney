@@ -152,9 +152,9 @@ fn validate_swiss_structure(t : Tournament) -> Unit raise FixtureError {
   )
   let pairings : Map[String, Bool] = Map([])
   let appearances : Map[String, Bool] = Map([])
-  let byes : Map[Int, Bool] = Map([])
-  let bye_rounds : Map[Int, Bool] = Map([])
-  let rounds : Map[Int, Bool] = Map([])
+  let byes : Map[Int32, Bool] = Map([])
+  let bye_rounds : Map[Int32, Bool] = Map([])
+  let rounds : Map[Int32, Bool] = Map([])
   let mut latest = 0
   for fixture in t.fixtures {
     require(

@@ -61,7 +61,7 @@ fn update_standing(
 
 ///|
 /// Compare ratios without floats or division-by-zero. 0/0 is neutral, x/0 infinity.
-pub fn compare_ratio(a : Int, b : Int, c : Int, d : Int) -> Int {
+pub fn compare_ratio(a : Int32, b : Int32, c : Int32, d : Int32) -> Int32 {
   let a_infinite = a > 0 && b == 0
   let c_infinite = c > 0 && d == 0
   if a_infinite && c_infinite {
@@ -89,7 +89,7 @@ fn compare_standings(
   a : Standing,
   b : Standing,
   criteria : Array[TieBreak],
-) -> Int {
+) -> Int32 {
   for criterion in criteria {
     let comparison = match criterion {
       Points => compare_int(a.points, b.points)
@@ -114,9 +114,9 @@ fn compare_standings(
 
 ///|
 /// Stage filtering prevents knockout matches contaminating group standings.
-pub fn standings(t : Tournament, stage? : String = "") -> Array[Standing] {
-  let table : Map[Int, Standing] = Map([])
-  let included : Map[Int, Bool] = Map([])
+pub fn standings(t : Tournament, stage~ : String = "") -> Array[Standing] {
+  let table : Map[Int32, Standing] = Map([])
+  let included : Map[Int32, Bool] = Map([])
   for p in t.participants {
     table[p.id] = blank_standing(p)
   }
@@ -156,7 +156,7 @@ pub fn standings(t : Tournament, stage? : String = "") -> Array[Standing] {
     }
   }
   // Opponent metrics use final table points; byes supply points but no opponent.
-  let opponents : Map[Int, Array[Int]] = Map([])
+  let opponents : Map[Int32, Array[Int32]] = Map([])
   for p in t.participants {
     opponents[p.id] = []
   }

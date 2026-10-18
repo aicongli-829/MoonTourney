@@ -2,9 +2,9 @@
 /// Reject impossible terminal scores, including rallies after an earlier win.
 pub fn validate_game(
   score : Score,
-  target : Int,
-  win_by : Int,
-  cap : Int,
+  target : Int32,
+  win_by : Int32,
+  cap : Int32,
 ) -> Unit raise FixtureError {
   require(
     target >= 1 && target <= 1000 && win_by >= 1 && win_by <= 10,
@@ -41,7 +41,7 @@ pub fn validate_game(
 pub fn validate_result(
   rules : Rules,
   result : MatchResult,
-  decisive? : Bool = false,
+  decisive~ : Bool = false,
 ) -> Unit raise FixtureError {
   validate_rules(rules)
   if result.fixture_id.length() == 0 {
@@ -135,7 +135,7 @@ pub fn validate_result(
 }
 
 ///|
-pub fn winner_side(result : MatchResult) -> Int? {
+pub fn winner_side(result : MatchResult) -> Int32? {
   if result.score.home > result.score.away {
     Some(1)
   } else if result.score.away > result.score.home {
@@ -173,7 +173,7 @@ pub fn match_points(rules : Rules, result : MatchResult) -> Score {
 pub fn forfeit_result(
   rules : Rules,
   id : String,
-  side : Int,
+  side : Int32,
 ) -> MatchResult raise FixtureError {
   require(side == 1 || side == 2, "Forfeit winner must be side 1 or 2.")
   validate_rules(rules)
@@ -224,9 +224,9 @@ pub fn forfeit_result(
 ///|
 pub fn score_result(
   id : String,
-  home : Int,
-  away : Int,
-  decider? : Int? = None,
+  home : Int32,
+  away : Int32,
+  decider~ : Int32? = None,
 ) -> MatchResult {
   { fixture_id: id, score: { home, away, }, sets: [], decider, kind: Played, }
 }
@@ -256,7 +256,7 @@ pub fn set_result(id : String, sets : Array[Score]) -> MatchResult {
 pub fn summarize_series(
   rules : Rules,
   games : Array[MatchResult],
-  best_of : Int,
+  best_of : Int32,
 ) -> SeriesSummary raise FixtureError {
   require(
     best_of >= 1 && best_of <= 15 && best_of % 2 == 1,

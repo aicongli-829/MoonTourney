@@ -41,12 +41,10 @@ Check desktop and narrow layouts. Fill an example, create a competition with aut
 
 ## Known limits
 
-Local validation on 29 September 2026: 60 tests passed on each of JavaScript, Native and Wasm GC; strict checks, formatting, release builds and the CLI / engine smoke passed. The tested toolchain reports `moon 0.1.20260904`, `moonc v0.10.12+1634b282e`; Node is `22.22.0`. Desktop and narrow layouts, score rejection, advancement, undo/redo, standings, scheduling, reload restore, JSON export preview and JSON import were exercised in the browser. A native file-download event was not confirmed in the in-app browser; export preview and copying remain available. GitHub Actions has not yet run for this unpushed change.
-
-Local validation on 16 October 2026: ten formats, 72 tests on each of JavaScript, Native and Wasm GC; strict checks, formatting, release builds and CLI / engine smoke passed. Combined formats, season collections, daily scheduling windows and roster changes were exercised through library and CLI tests. The web interface compiled, but its new season and timetable controls have not yet been manually checked in a browser: the available in-app browser timed out when opening the local loopback server.
+Local validation on 18 October 2026 used `moon 0.1.20261012` and Node.js 22. Formatting, strict checks, 72 tests on each of JavaScript, Native and Wasm GC, release builds and the CLI / engine smoke passed. Combined formats, season collections, daily scheduling windows and roster changes were exercised through library and CLI tests.
 
 Browser review on 17 October 2026: the new desk was opened at a local loopback URL. Desktop and 390-pixel layouts were inspected, a narrow-screen horizontal overflow was fixed, the event shortcut was checked, and entering then undoing a score updated the new progress indicator from 0/28 to 1/28 and back. The full result-entry matrix, all tournament formats and native download behavior were not rechecked in this visual pass.
 
-Current formatted MoonBit source: approximately 6,018 implementation lines plus 1,600 test lines. Counts include normal formatting and comments; they exclude generated output, dependencies and toolchains. Source size is reported for review, not enforced as a quality test.
+Current formatted MoonBit source: 6,301 implementation lines plus 1,635 test lines. Counts include normal formatting and comments; they exclude generated output, dependencies and toolchains. Source size is reported for review, not enforced as a quality test.
 
 Swiss search is bounded and not a formal FIDE certification. Schedule efficiency is not globally optimized. The current suite is not a comprehensive federation compliance suite, a security audit, or a benchmark at unrestricted scale. Refer to [RULES.md](RULES.md) for the behavior promised by each profile.

@@ -1,13 +1,13 @@
 ///|
 priv struct PairSearch {
-  mut nodes : Int
-  mut best_cost : Int
-  mut best : Array[(Int, Int)]
+  mut nodes : Int32
+  mut best_cost : Int32
+  mut best : Array[(Int32, Int32)]
   mut limited : Bool
 }
 
 ///|
-fn previously_paired(t : Tournament, a : Int, b : Int) -> Bool {
+fn previously_paired(t : Tournament, a : Int32, b : Int32) -> Bool {
   for fixture in t.fixtures {
     match (resolve_slot(t, fixture.home), resolve_slot(t, fixture.away)) {
       (Ready(c), Ready(d)) => if same_pair(a, b, c, d) { return true }
@@ -18,7 +18,7 @@ fn previously_paired(t : Tournament, a : Int, b : Int) -> Bool {
 }
 
 ///|
-fn side_balance(t : Tournament, id : Int) -> Int {
+fn side_balance(t : Tournament, id : Int32) -> Int32 {
   let mut balance = 0
   for fixture in t.fixtures {
     if fixture.stage != "swiss" {
@@ -40,7 +40,12 @@ fn side_balance(t : Tournament, id : Int) -> Int {
 }
 
 ///|
-fn pair_cost(t : Tournament, rows : Array[Standing], a : Int, b : Int) -> Int {
+fn pair_cost(
+  t : Tournament,
+  rows : Array[Standing],
+  a : Int32,
+  b : Int32,
+) -> Int32 {
   let first = rows[a]
   let second = rows[b]
   let x = side_balance(t, first.participant.id)
@@ -55,9 +60,9 @@ fn pair_cost(t : Tournament, rows : Array[Standing], a : Int, b : Int) -> Int {
 fn search_pairs(
   t : Tournament,
   rows : Array[Standing],
-  remaining : Array[Int],
-  pairs : Array[(Int, Int)],
-  cost : Int,
+  remaining : Array[Int32],
+  pairs : Array[(Int32, Int32)],
+  cost : Int32,
   search : PairSearch,
 ) -> Unit {
   if search.nodes >= 50000 {
@@ -137,8 +142,8 @@ pub fn next_swiss_round(t : Tournament) -> Tournament raise FixtureError {
   }
   let rows = standings(t).filter(row => row.participant.active)
   require(rows.length() >= 2, "At least two active entrants are needed.")
-  let candidates : Array[Int] = Array::makei(rows.length(), i => i)
-  let mut bye : Int? = None
+  let candidates : Array[Int32] = Array::makei(rows.length(), i => i)
+  let mut bye : Int32? = None
   if candidates.length() % 2 == 1 {
     // Try bye candidates from lowest score upward; a different bye may unblock pairing.
     for i = rows.length() - 1; i >= 0; i = i - 1 {
@@ -154,7 +159,7 @@ pub fn next_swiss_round(t : Tournament) -> Tournament raise FixtureError {
   let bye_options = if bye == None {
     [None]
   } else {
-    let options : Array[Int?] = []
+    let options : Array[Int32?] = []
     for i = rows.length() - 1; i >= 0; i = i - 1 {
       if rows[i].byes == 0 {
         options.push(Some(i))
@@ -162,7 +167,7 @@ pub fn next_swiss_round(t : Tournament) -> Tournament raise FixtureError {
     }
     options
   }
-  let mut selected : Array[(Int, Int)] = []
+  let mut selected : Array[(Int32, Int32)] = []
   let mut allocated_bye = bye
   let mut found = false
   for option in bye_options {

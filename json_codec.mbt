@@ -35,7 +35,7 @@ fn text_field(
 }
 
 ///|
-fn int_value(value : Json, label : String) -> Int raise FixtureError {
+fn int_value(value : Json, label : String) -> Int32 raise FixtureError {
   match value {
     Number(number, ..) => {
       if number < -10000000.0 ||
@@ -53,8 +53,8 @@ fn int_value(value : Json, label : String) -> Int raise FixtureError {
 fn int_field(
   value : Json,
   key : String,
-  fallback : Int,
-) -> Int raise FixtureError {
+  fallback : Int32,
+) -> Int32 raise FixtureError {
   match field(value, key) {
     Null => fallback
     other => int_value(other, key)
@@ -84,8 +84,8 @@ fn array_value(value : Json, label : String) -> Array[Json] raise FixtureError {
 }
 
 ///|
-fn number_json(value : Int) -> Json {
-  value.to_json()
+fn number_json(value : Int32) -> Json {
+  Json(value)
 }
 
 ///|
@@ -425,7 +425,7 @@ pub fn view_to_json(t : Tournament) -> Json {
     "fixtures": views,
     "tables": tables,
     "champion": match champion(t) {
-      Some(id) => participant_name(t.participants, id).to_json()
+      Some(id) => Json(participant_name(t.participants, id))
       None => Json::null()
     },
   }

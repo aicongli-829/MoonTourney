@@ -3,7 +3,7 @@ test "Swiss rounds avoid rematches and distribute one bye per entrant" {
   for n in [5, 7, 8, 10] {
     let mut t = create_tournament("Club", Swiss, preset("chess"), entrants(n))
     let pairs : Map[String, Bool] = Map([])
-    let byes : Map[Int, Bool] = Map([])
+    let byes : Map[Int32, Bool] = Map([])
     for round in 1..<=4 {
       for f in t.fixtures {
         if f.round != round {

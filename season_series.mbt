@@ -202,7 +202,7 @@ pub fn season_series_from_json(value : Json) -> SeasonSeries raise FixtureError 
 ///|
 /// Round-robin and Club Swiss can have a unique table winner without a final.
 /// Combined formats need their knockout winner, even if the first stage ended.
-pub fn season_winner(t : Tournament) -> Int? {
+pub fn season_winner(t : Tournament) -> Int32? {
   match champion(t) {
     Some(id) => return Some(id)
     None => ()
@@ -246,15 +246,15 @@ pub fn season_series_view_to_json(series : SeasonSeries) -> Json {
         "finished": finished,
         "fixtures": t.fixtures.length(),
         "champion": match season_winner(t) {
-          Some(id) => participant_name(t.participants, id).to_json()
+          Some(id) => Json(participant_name(t.participants, id))
           None => Json::null()
         },
       } : Json)
   })
   let names : Array[String] = []
-  let first_seen : Map[String, Int] = Map([])
-  let appearances : Map[String, Int] = Map([])
-  let titles : Map[String, Int] = Map([])
+  let first_seen : Map[String, Int32] = Map([])
+  let appearances : Map[String, Int32] = Map([])
+  let titles : Map[String, Int32] = Map([])
   for season in series.seasons {
     let winner = season_winner(season.tournament)
     for participant in season.tournament.participants {

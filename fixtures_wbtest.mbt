@@ -1,5 +1,5 @@
 ///|
-fn entrants(n : Int) -> Array[Participant] {
+fn entrants(n : Int32) -> Array[Participant] {
   Array::makei(n, i => {
     (
       {
@@ -24,7 +24,7 @@ fn rejects(operation : () -> Unit raise FixtureError) -> Bool {
 ///|
 fn complete_ready(
   tournament : Tournament,
-  away? : Bool = false,
+  away~ : Bool = false,
 ) -> Tournament raise FixtureError {
   let mut t = tournament
   for fixture in tournament.fixtures {
@@ -58,7 +58,7 @@ test "round robin covers every unordered pair once, without round conflicts" {
     let fixtures = round_robin(entrants(n))
     let pairs : Map[String, Bool] = Map([])
     let rounds : Map[String, Bool] = Map([])
-    let byes : Map[Int, Int] = Map([])
+    let byes : Map[Int32, Int32] = Map([])
     for f in fixtures {
       for slot in [f.home, f.away] {
         match slot {
@@ -182,7 +182,7 @@ test "double elimination ends with exactly two losses for every non-champion" {
         away~,
       )
       let winner = champion(t).unwrap()
-      let losses : Map[Int, Int] = Map([])
+      let losses : Map[Int32, Int32] = Map([])
       for fixture in t.fixtures {
         match
           (
@@ -270,7 +270,7 @@ test "groups qualify only completed tables and cross groups in opening knockout"
     assert_true(rejects(() => ignore(advance_groups(t))))
     let finished = complete_ready(t)
     let advanced = advance_groups(finished)
-    let membership : Map[Int, Int] = Map([])
+    let membership : Map[Int32, Int32] = Map([])
     for i, group in distribute_groups(t.participants, count) {
       for p in group {
         membership[p.id] = i

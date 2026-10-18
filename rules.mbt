@@ -260,7 +260,7 @@ pub fn validate_rules(rules : Rules) -> Unit raise FixtureError {
 }
 
 ///|
-pub fn with_best_of(rules : Rules, best_of : Int) -> Rules raise FixtureError {
+pub fn with_best_of(rules : Rules, best_of : Int32) -> Rules raise FixtureError {
   let changed = { ..rules, best_of, }
   validate_rules(changed)
   rules_from_json(rules_to_json(changed))

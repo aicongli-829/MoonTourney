@@ -4,10 +4,10 @@ pub fn create_tournament(
   format : Format,
   rules : Rules,
   participants : Array[Participant],
-  group_count? : Int = 2,
-  qualifiers? : Int = 2,
-  third_place? : Bool = false,
-  swiss_rounds? : Int = 3,
+  group_count~ : Int32 = 2,
+  qualifiers~ : Int32 = 2,
+  third_place~ : Bool = false,
+  swiss_rounds~ : Int32 = 3,
 ) -> Tournament raise FixtureError {
   validate_participants(participants)
   validate_rules(rules)
@@ -241,7 +241,7 @@ pub fn advance_groups(t : Tournament) -> Tournament raise FixtureError {
   }
   // Keep winners in high seeds; repair same-group opening games within a rank band.
   let qualified : Array[Participant] = []
-  let membership : Map[Int, Int] = Map([])
+  let membership : Map[Int32, Int32] = Map([])
   for position in 0..<t.qualifiers {
     for offset in 0..<t.group_count {
       let group = offset
@@ -251,7 +251,7 @@ pub fn advance_groups(t : Tournament) -> Tournament raise FixtureError {
     }
   }
   let placement = bracket_seed_order(next_power_two(qualified.length()))
-  let partners : Map[Int, Int] = Map([])
+  let partners : Map[Int32, Int32] = Map([])
   for i in 0..<(placement.length() / 2) {
     partners[placement[i * 2] - 1] = placement[i * 2 + 1] - 1
     partners[placement[i * 2 + 1] - 1] = placement[i * 2] - 1
@@ -401,7 +401,7 @@ fn append_knockout(
 ///|
 pub fn set_active(
   t : Tournament,
-  id : Int,
+  id : Int32,
   active : Bool,
 ) -> Tournament raise FixtureError {
   require(t.participants.any(p => p.id == id), "Unknown participant.")
@@ -421,7 +421,7 @@ pub fn settle_withdrawals(
   tournament : Tournament,
 ) -> Tournament raise FixtureError {
   let mut t = tournament
-  let active : Map[Int, Bool] = Map([])
+  let active : Map[Int32, Bool] = Map([])
   for p in t.participants {
     active[p.id] = p.active
   }

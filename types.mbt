@@ -1,9 +1,9 @@
 ///|
 /// IDs survive reseeding; seed is a separate competition attribute.
 pub(all) struct Participant {
-  id : Int
+  id : Int32
   name : String
-  seed : Int
+  seed : Int32
   active : Bool
 } derive(Eq, Debug)
 
@@ -42,7 +42,7 @@ pub(all) enum Format {
 
 ///|
 pub(all) enum Slot {
-  Seed(Int)
+  Seed(Int32)
   Winner(String)
   Loser(String)
   Empty
@@ -51,7 +51,7 @@ pub(all) enum Slot {
 ///|
 /// An unplayed semifinal is pending, not an empty bye.
 pub(all) enum ResolvedSlot {
-  Ready(Int)
+  Ready(Int32)
   Pending
   Vacant
 } derive(Eq, Debug)
@@ -69,15 +69,15 @@ pub(all) enum FixtureState {
 pub(all) struct Fixture {
   id : String
   stage : String
-  round : Int
+  round : Int32
   home : Slot
   away : Slot
 } derive(Eq, Debug)
 
 ///|
 pub(all) struct Score {
-  home : Int
-  away : Int
+  home : Int32
+  away : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -92,7 +92,7 @@ pub(all) struct MatchResult {
   fixture_id : String
   score : Score
   sets : Array[Score]
-  decider : Int?
+  decider : Int32?
   kind : ResultKind
 } derive(Eq, Debug)
 
@@ -117,16 +117,16 @@ pub(all) struct Rules {
   id : String
   label : String
   sport : Sport
-  best_of : Int
-  target : Int
-  final_target : Int
-  win_by : Int
-  cap : Int
-  win_points : Int
-  draw_points : Int
-  loss_points : Int
-  forfeit_score : Int
-  point_scale : Int
+  best_of : Int32
+  target : Int32
+  final_target : Int32
+  win_by : Int32
+  cap : Int32
+  win_points : Int32
+  draw_points : Int32
+  loss_points : Int32
+  forfeit_score : Int32
+  point_scale : Int32
   tie_breaks : Array[TieBreak]
   source : String
   scope : String
@@ -140,9 +140,9 @@ pub(all) struct Tournament {
   participants : Array[Participant]
   fixtures : Array[Fixture]
   results : Map[String, MatchResult]
-  group_count : Int
-  qualifiers : Int
-  swiss_rounds : Int
+  group_count : Int32
+  qualifiers : Int32
+  swiss_rounds : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -163,29 +163,29 @@ pub(all) struct SeasonSeries {
 ///|
 pub(all) struct Standing {
   participant : Participant
-  rank : Int
-  played : Int
-  wins : Int
-  draws : Int
-  losses : Int
-  points : Int
-  scored : Int
-  conceded : Int
-  sets_won : Int
-  sets_lost : Int
-  head_to_head : Int
-  buchholz : Int
-  buchholz_cut_one : Int
-  sonneborn_berger : Int
-  byes : Int
+  rank : Int32
+  played : Int32
+  wins : Int32
+  draws : Int32
+  losses : Int32
+  points : Int32
+  scored : Int32
+  conceded : Int32
+  sets_won : Int32
+  sets_lost : Int32
+  head_to_head : Int32
+  buchholz : Int32
+  buchholz_cut_one : Int32
+  sonneborn_berger : Int32
+  byes : Int32
 } derive(Eq, Debug)
 
 ///|
 pub(all) struct Allocation {
   fixture_id : String
-  court : Int
-  start : Int
-  duration : Int
+  court : Int32
+  start : Int32
+  duration : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -203,11 +203,11 @@ pub(all) struct History {
 
 ///|
 pub(all) struct SeriesSummary {
-  home_wins : Int
-  away_wins : Int
+  home_wins : Int32
+  away_wins : Int32
   complete : Bool
-  winner_side : Int?
-  next_game : Int
+  winner_side : Int32?
+  next_game : Int32
 } derive(Eq, Debug)
 
 ///|

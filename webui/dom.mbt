@@ -28,7 +28,7 @@ extern "js" fn disabled(id : String, off : Bool) -> Unit =
   #|(id, off) => { const el = document.getElementById(id); if (el) el.disabled = off; }
 
 ///|
-extern "js" fn set_progress(percent : Int) -> Unit =
+extern "js" fn set_progress(percent : Int32) -> Unit =
   #|(percent) => { const fill = document.getElementById("progress-fill"); const track = document.getElementById("progress-track"); if (fill) fill.style.width = percent + "%"; if (track) track.setAttribute("aria-valuenow", String(percent)); }
 
 ///|

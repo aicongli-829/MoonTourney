@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 $taskRoot = Split-Path -Parent $PSScriptRoot
 Push-Location -LiteralPath $taskRoot
 try {
-  $taskMoonHome = Join-Path $taskRoot '.tools/moon'
+  $taskMoonHome = Join-Path $taskRoot '.tools/moon-ci-latest'
   if (Test-Path -LiteralPath (Join-Path $taskMoonHome 'bin/moon.exe')) {
     $env:MOON_HOME = $taskMoonHome
     $env:Path = "$taskMoonHome/bin;$env:Path"

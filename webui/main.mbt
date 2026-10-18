@@ -3,7 +3,7 @@ priv struct Ui {
   mut history : @core.History?
   mut tab : String
   mut editor : String
-  mut page : Int
+  mut page : Int32
   mut schedule_csv : String
   mut schedule_slots : Map[String, String]
   mut export_content : String
@@ -37,7 +37,7 @@ fn get(doc : Json, key : String) -> Json {
 }
 
 ///|
-fn label(doc : Json, key : String, fallback? : String = "") -> String {
+fn label(doc : Json, key : String, fallback~ : String = "") -> String {
   match get(doc, key) {
     String(s) => s
     Number(n, ..) => n.to_int().to_string()
@@ -434,7 +434,7 @@ fn preview_export(name : String, content : String, mime : String) -> Unit {
 }
 
 ///|
-fn save(t : @core.Tournament, fresh? : Bool = false) -> Unit {
+fn save(t : @core.Tournament, fresh~ : Bool = false) -> Unit {
   ui.history = Some(
     if fresh || ui.history == None {
       @core.new_history(t)
@@ -505,7 +505,7 @@ fn save(t : @core.Tournament, fresh? : Bool = false) -> Unit {
 }
 
 ///|
-fn call(request : Json, change? : Bool = true, fresh? : Bool = false) -> Json? {
+fn call(request : Json, change~ : Bool = true, fresh~ : Bool = false) -> Json? {
   let envelope = @json.parse(@core.dispatch_json(request.stringify())) catch {
     _ => {
       notice("The engine response could not be read.")
@@ -535,7 +535,7 @@ fn call(request : Json, change? : Bool = true, fresh? : Bool = false) -> Json? {
 }
 
 ///|
-fn integer(id : String) -> Int? {
+fn integer(id : String) -> Int32? {
   let n = @string.parse_int(value(id).trim().to_owned()) catch {
     _ => {
       notice("Enter a whole number for " + id + ".")
@@ -1211,7 +1211,7 @@ fn save_result() -> Unit {
       if side == None {
         return
       }
-      side.unwrap().to_json()
+      Json(side.unwrap())
     }
     result = {
       "fixtureId": ui.editor,
@@ -1388,7 +1388,7 @@ fn action(name : String, id : String) -> Unit {
 }
 
 ///|
-fn time_offset(id : String) -> Int? {
+fn time_offset(id : String) -> Int32? {
   let parts = value(id).split(":").to_array()
   if parts.length() != 2 {
     notice("Enter a valid time for " + id + ".")
@@ -1414,7 +1414,7 @@ fn time_offset(id : String) -> Int? {
 }
 
 ///|
-fn schedule_stamp(start : Int) -> String {
+fn schedule_stamp(start : Int32) -> String {
   let h = start / 60 % 24
   let m = start % 60
   "Day " +
@@ -1428,7 +1428,7 @@ fn schedule_stamp(start : Int) -> String {
 }
 
 ///|
-fn plan_schedule(announce? : Bool = true) -> Unit {
+fn plan_schedule(announce~ : Bool = true) -> Unit {
   let t = match current() {
     Some(t) => t
     None => return
