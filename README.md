@@ -113,6 +113,7 @@ On Windows, `powershell -ExecutionPolicy Bypass -File scripts/check.ps1` runs th
 
 - [Concrete use cases and acceptance examples](docs/VALUE_PROOF.md)
 - [Ecosystem search scope and limitations](docs/ECOSYSTEM.md)
+- [Scheduling scope and adjacent Mooncakes packages](docs/SCHEDULING_BOUNDARY.md)
 - [Rule sources and compatibility boundaries](docs/RULES.md)
 - [Test strategy](docs/TESTING.md), [provenance](docs/PROVENANCE.md), [roadmap](ROADMAP.md)
 

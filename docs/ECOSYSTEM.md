@@ -19,6 +19,8 @@ Public entry points for independent checking:
 - [MoonBit Swiss repository discovery](https://github.com/search?q=MoonBit+Swiss&type=repositories)
 - [MoonBit fixture repository discovery](https://github.com/search?q=MoonBit+fixture&type=repositories)
 
+The 20 October 2026 review of scheduling-related published packages, the implementation boundary and a reproducible example are documented in [Scheduling scope and adjacent Mooncakes packages](SCHEDULING_BOUNDARY.md). This comparison acknowledges shared scheduling concepts and does not assert that a generic court-allocation heuristic is unique.
+
 ## Reusable contribution
 
 A MoonBit application can use the library without its web UI, without Node filesystem adapters and without a network service. Examples include a club portal displaying an event table, a desktop organizer computing brackets, a student competition dashboard and an esports map-score application.
