@@ -7,6 +7,11 @@ pub(all) struct Opts {
   types_not : Array[String] // --type-not exclude filter
   excludes : Array[String]
   mut sort_key : String
+  mut num_format : String
+  mut num_format_explicit : Bool
+  mut columns : Int32
+  mut columns_explicit : Bool
+  mut compact : Bool
   mut reverse : Bool
   mut hidden : Bool
   mut no_ignore : Bool
@@ -14,6 +19,7 @@ pub(all) struct Opts {
   mut no_ignore_vcs : Bool
   mut list_files : Bool // --files
   mut out_file : String? // --output-file extension; upstream -o selects format
+  mut input_file : String? // --input reads an earlier JSON report
   mut list_langs : Bool // -l
   mut show_version : Bool
   mut show_help : Bool
@@ -39,6 +45,7 @@ fn usage() -> String {
     $|    -V, --version            Print version information
     $|    -l, --languages          Print supported languages and their extensions
     $|    -f, --files              Print individual file statistics
+    $|    -C, --compact            Hide embedded-language details in the table
     $|        --hidden             Count hidden files
     $|        --no-ignore          Do not respect ignore files
     $|        --no-ignore-dot      Do not respect .ignore or .tokeignore
@@ -48,9 +55,12 @@ fn usage() -> String {
     $|OPTIONS:
     $|    -o, --output <FORMAT>    Output format: table, json, csv, yaml (default: table)
     $|        --output-file <FILE> Write output to FILE instead of stdout
+    $|    -i, --input <FILE>       Merge a previous JSON report (file path)
     $|    -t, --type <LANGS>       Only count the given languages (comma separated)
     $|    -T, --type-not <LANGS>   Count everything except the given languages
     $|    -e, --exclude <PATTERN>  Ignore files/directories matching PATTERN (repeatable)
+    $|    -n, --num-format <STYLE> Group table numbers: plain, commas, dots, underscores
+    $|    -c, --columns <WIDTH>    Set terminal table width (minimum 79)
     $|    -s, --sort <ORDER>       Sort by files, lines, blanks, code, comments or language
     $|    -r, --reverse            Reverse the sort order
     $|
@@ -97,6 +107,11 @@ pub fn parse_args(argv : Array[String]) -> Opts {
     types_not: [],
     excludes: [],
     sort_key: "language",
+    num_format: "plain",
+    num_format_explicit: false,
+    columns: 79,
+    columns_explicit: false,
+    compact: false,
     reverse: false,
     hidden: false,
     no_ignore: false,
@@ -104,6 +119,7 @@ pub fn parse_args(argv : Array[String]) -> Opts {
     no_ignore_vcs: false,
     list_files: false,
     out_file: None,
+    input_file: None,
     list_langs: false,
     show_version: false,
     show_help: false,
@@ -139,6 +155,8 @@ pub fn parse_args(argv : Array[String]) -> Opts {
       // accepted for compatibility; warnings are never printed
     } else if arg == "-f" || arg == "--files" {
       opts.list_files = true
+    } else if arg == "-C" || arg == "--compact" {
+      opts.compact = true
     } else if arg == "-o" || arg == "--output" || arg == "--format" {
       i += 1
       if i >= n {
@@ -157,6 +175,12 @@ pub fn parse_args(argv : Array[String]) -> Opts {
         fail("the argument '--output-file <FILE>' requires a value")
       }
       opts.out_file = Some(argv[i])
+    } else if arg == "-i" || arg == "--input" {
+      i += 1
+      if i >= n {
+        fail("the argument '--input <FILE>' requires a value")
+      }
+      opts.input_file = Some(argv[i])
     } else if arg == "-t" || arg == "--type" {
       i += 1
       if i >= n {
@@ -179,6 +203,27 @@ pub fn parse_args(argv : Array[String]) -> Opts {
         fail("the argument '--exclude <PATTERN>' requires a value")
       }
       opts.excludes.push(argv[i])
+    } else if arg == "-n" || arg == "--num-format" {
+      i += 1
+      if i >= n {
+        fail("the argument '--num-format <STYLE>' requires a value")
+      }
+      let style = argv[i]
+      if style != "plain" &&
+        style != "commas" &&
+        style != "dots" &&
+        style != "underscores" {
+        fail("invalid number format '" + style + "'")
+      }
+      opts.num_format = style
+      opts.num_format_explicit = true
+    } else if arg == "-c" || arg == "--columns" {
+      i += 1
+      if i >= n {
+        fail("the argument '--columns <WIDTH>' requires a value")
+      }
+      opts.columns = parse_columns(argv[i])
+      opts.columns_explicit = true
     } else if arg == "-s" || arg == "--sort" {
       i += 1
       if i >= n {
@@ -202,6 +247,26 @@ pub fn parse_args(argv : Array[String]) -> Opts {
     i += 1
   }
   opts
+}
+
+///|
+fn parse_columns(value : String) -> Int32 {
+  if value.length() == 0 {
+    fail("invalid column width '" + value + "'")
+  }
+  let mut width = 0
+  for ch in value {
+    let digit = ch.to_int() - 0x30
+    if digit < 0 || digit > 9 || width > 1000 {
+      fail("invalid column width '" + value + "'")
+    }
+    width = width * 10 + digit
+  }
+  if width < 79 {
+    79
+  } else {
+    width
+  }
 }
 
 ///|

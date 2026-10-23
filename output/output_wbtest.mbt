@@ -20,7 +20,7 @@ test "JSON serializes upstream language and file report fields" {
 }
 
 ///|
-test "file table keeps long paths and totals together" {
+test "file table uses upstream fixed width and truncates long paths" {
   let c : @counter.Counts = {
     files: 1,
     lines: 2,
@@ -34,7 +34,8 @@ test "file table keeps long paths and totals together" {
   let report = @report.build(counts, "language", false)
   let path = "very/long/path/to/a/source/file.rs"
   let table = render_files(report, [(path, "Rust", c)])
-  assert_eq(table.contains(path), true)
+  assert_eq(table[:79].to_owned(), repeat('=', 79))
+  assert_eq(table.contains(" |" + path[path.length() - 24:].to_owned()), true)
   assert_eq(table.contains("Total"), true)
 }
 
@@ -79,4 +80,54 @@ test "notebook children appear in JSON and YAML reports" {
   let yaml = render_yaml(report, files)
   assert_eq(yaml.contains("  children:\n    \"Python\":\n"), true)
   assert_eq(yaml.contains("        blobs:\n          \"Python\":\n"), true)
+}
+
+///|
+test "table uses upstream width and grouped counts" {
+  let c : @counter.Counts = {
+    files: 1,
+    lines: 1234,
+    code: 1234,
+    comments: 0,
+    blanks: 0,
+    blobs: Map([]),
+  }
+  let counts : Map[String, @counter.Counts] = Map([])
+  counts.set("Rust", c)
+  let report = @report.build(counts, "language", false)
+  let table = render_table_with_options(report, 79, "commas")
+  assert_eq(
+    table.contains(" Rust                    1        1,234        1,234"),
+    true,
+  )
+  assert_eq(
+    table.contains(
+      "\n===============================================================================\n Total",
+    ),
+    true,
+  )
+  let wide = render_table_with_options(report, 100, "underscores")
+  assert_eq(wide.contains("1_234"), true)
+  assert_eq(wide[:100].to_owned(), repeat('=', 100))
+}
+
+///|
+test "notebook child rows can be shown or compacted" {
+  let c = @counter.Counts::new()
+  c.files = 1
+  let child = @counter.Counts::new()
+  child.files = 1
+  child.lines = 3
+  child.code = 2
+  child.comments = 1
+  c.blobs.set("Python", child)
+  let counts : Map[String, @counter.Counts] = Map([])
+  counts.set("Jupyter", c)
+  let report = @report.build(counts, "language", false)
+  let files = [("sample.ipynb", "Jupyter", c)]
+  let expanded = render_table_with_files(report, files, 79, "plain", false)
+  assert_eq(expanded.contains(" |- Python"), true)
+  assert_eq(expanded.contains(" (Total)"), true)
+  let compact = render_table_with_files(report, files, 79, "plain", true)
+  assert_eq(compact.contains(" |- Python"), false)
 }

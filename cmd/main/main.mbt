@@ -15,8 +15,21 @@ fn main {
     println(@lang.language_list())
     return
   }
+  match opts.format {
+    Table => ()
+    _ => {
+      if opts.num_format_explicit {
+        fail("--num-format cannot be used with serialized output")
+      }
+      if opts.columns_explicit {
+        fail("--columns cannot be used with serialized output")
+      }
+    }
+  }
   let roots : Array[String] = if opts.paths.length() > 0 {
     opts.paths
+  } else if opts.input_file is Some(_) {
+    []
   } else {
     ["."]
   }
@@ -65,14 +78,54 @@ fn main {
         println("[tokei warning]: could not read " + f.rel + ": " + msg)
     }
   }
+  match opts.input_file {
+    Some(path) =>
+      match (Ok(@fs.read_file_to_string(path)) catch { e => Err(e) }) {
+        Ok(content) =>
+          match @saved.parse(content) {
+            Some(snapshot) => {
+              for kv in snapshot.counts {
+                match counts.get(kv.0) {
+                  Some(existing) => existing.add(kv.1)
+                  None => counts.set(kv.0, kv.1)
+                }
+              }
+              for entry in snapshot.files {
+                file_counts.push(entry)
+              }
+            }
+            None => fail("cannot parse saved Tokei JSON report: " + path)
+          }
+        Err(@fs.IOError(msg)) => fail("cannot read input " + path + ": " + msg)
+      }
+    None => ()
+  }
   // 5. report & output
   let rep = @report.build(counts, opts.sort_key, opts.reverse)
   match opts.format {
     Table =>
       if opts.list_files {
-        emit(opts, @output.render_files(rep, file_counts))
+        emit(
+          opts,
+          @output.render_files_with_options(
+            rep,
+            file_counts,
+            opts.columns,
+            opts.num_format,
+            opts.compact,
+          ),
+        )
       } else {
-        emit(opts, @output.render_table(rep))
+        emit(
+          opts,
+          @output.render_table_with_files(
+            rep,
+            file_counts,
+            opts.columns,
+            opts.num_format,
+            opts.compact,
+          ),
+        )
       }
     Json => emit(opts, @output.render_json(rep, file_counts))
     Csv => emit(opts, @output.render_csv(rep))
@@ -113,7 +166,12 @@ fn emit(opts : Opts, text : String) -> Unit {
         Err(@fs.IOError(msg)) =>
           println("[tokei error]: cannot write to " + path + ": " + msg)
       }
-    None => println(text)
+    None =>
+      if text.length() > 0 && text.at(text.length() - 1).to_int() == 0x0A {
+        println(text[:text.length() - 1].to_owned())
+      } else {
+        println(text)
+      }
   }
 }
 

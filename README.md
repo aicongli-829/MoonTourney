@@ -48,7 +48,7 @@ Run `moon run cmd/main -- tests/fixtures/plain` to get a real sample report:
 moon build --target native
 # Windows binary: _build/native/debug/build/cmd/main/main.exe
 moon run cmd/main -- path/to/project
-moon test --target native  # 39 tests, including broad delimiter smoke tests
+moon test --target native  # 44 tests, including broad delimiter smoke tests
 python tools/verify_release.py  # checks build, tests, language table and CLI
 ```
 
@@ -72,6 +72,7 @@ FLAGS:
     -V, --version            Print version information
     -l, --languages          Print supported languages and their extensions
     -f, --files              Print individual file statistics beneath each language
+    -C, --compact            Hide embedded-language detail rows in the table
         --hidden             Count hidden files
         --no-ignore          Do not respect ignore files
         --no-ignore-dot      Do not respect .ignore or .tokeignore
@@ -80,11 +81,14 @@ FLAGS:
 
 OPTIONS:
     -o, --output <FORMAT>    Output format: table, json, csv, yaml (default: table)
+    -i, --input <FILE>       Merge a previously saved JSON report
         --output-file <FILE> Write output to FILE instead of stdout
     -t, --type <LANGS>       Only count the given languages (comma separated)
     -T, --type-not <LANGS>   Count everything except the given languages
     -e, --exclude <PATTERN>  Ignore files/directories matching PATTERN (repeatable)
     -s, --sort <ORDER>       Sort by files, lines, blanks, code, comments or language
+    -n, --num-format <STYLE> Format table numbers: plain, commas, dots, underscores
+    -c, --columns <WIDTH>    Set the terminal table width (minimum 79)
     -r, --reverse            Reverse the sort order
 ```
 
@@ -94,6 +98,7 @@ Examples:
 moon run cmd/main -- .                         # count current directory
 moon run cmd/main -- -o json --output-file stats.json .  # JSON report to file
 moon run cmd/main -- -t rust,python -s code .  # only Rust+Python, sorted by code
+moon run cmd/main -- -i stats.json .            # merge saved statistics with a fresh scan
 ```
 
 ## Architecture
@@ -140,6 +145,12 @@ directory also matches after path normalization and report-order sorting.
 These fixtures do not establish complete grammar or feature parity for either
 version.
 
+Five terminal-output cases are also compared line-for-line against Tokei
+12.1.2: ordinary and wide tables, embedded-language rows, compact mode, and
+grouped numbers. JSON `--input` accepts a saved report file and preserves
+per-file and child-language counts; upstream's `stdin` input form is not yet
+implemented.
+
 `tools/verify_release.py` is the local release gate. It verifies that all 333
 generated language keys match the pinned official table, runs strict MoonBit
 checks and tests, builds the native CLI, and checks a real MoonBit JSON report.
@@ -155,7 +166,9 @@ checks and tests, builds the native CLI, and checks a real MoonBit JSON report.
 ## Roadmap
 
 - Differential fixtures for every claimed language and a reproducible upstream comparison report
-- Match Tokei's full CLI/output semantics, including `--files` with each format
+- Match Tokei's full CLI/output semantics, including `--files` for embedded
+  languages, `--input stdin`, and exact error/exit behavior
+- Read configuration files and provide optional CBOR serialization
 - `--folders` per-directory statistics
 - HTML output format
 - Parallel scanning for very large repositories

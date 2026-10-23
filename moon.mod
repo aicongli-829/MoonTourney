@@ -4,7 +4,7 @@ version = "0.1.0"
 
 readme = "README.md"
 
-repository = "https://github.com/aicongli-829/tokei-mbt"
+repository = "https://github.com/aicongli-829/TokeiMBT"
 
 license = "Apache-2.0"
 

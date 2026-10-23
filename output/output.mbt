@@ -65,41 +65,135 @@ const LINE_WIDTH = 79
 ///  Total                   5         2250         1650          300          300
 /// ===============================================================================
 pub fn render_table(r : @report.Report) -> String {
+  render_table_with_options(r, LINE_WIDTH, "plain")
+}
+
+///|
+/// Match upstream's 79-column minimum; wider tables expand the language cell.
+pub fn render_table_with_options(
+  r : @report.Report,
+  columns : Int32,
+  num_format : String,
+) -> String {
+  render_table_with_files(r, [], columns, num_format, false)
+}
+
+///|
+/// Show child-language counts beneath each container language, as Tokei does.
+pub fn render_table_with_files(
+  r : @report.Report,
+  files : Array[(String, String, @counter.Counts)],
+  columns : Int32,
+  num_format : String,
+  compact : Bool,
+) -> String {
   let buf = StringBuilder()
-  buf.write_string(repeat('=', LINE_WIDTH))
+  let table_width = if columns > LINE_WIDTH { columns } else { LINE_WIDTH }
+  let name_width = table_width - 60
+  buf.write_string(repeat('=', table_width))
   buf.write_char('\n')
-  buf.write_string(pad_right(" Language", 20))
+  buf.write_string(pad_right(" Language", name_width))
   buf.write_string(pad_left("Files", 7))
   buf.write_string(pad_left("Lines", 13))
   buf.write_string(pad_left("Code", 13))
   buf.write_string(pad_left("Comments", 13))
   buf.write_string(pad_left("Blanks", 13))
   buf.write_char('\n')
-  buf.write_string(repeat('=', LINE_WIDTH))
+  buf.write_string(repeat('=', table_width))
   buf.write_char('\n')
   for s in r.langs {
-    write_table_row(buf, s.name, s.files, s.lines, s.code, s.comments, s.blanks)
+    write_table_row_width(
+      buf,
+      s.name,
+      s.files,
+      s.lines,
+      s.code,
+      s.comments,
+      s.blanks,
+      name_width,
+      num_format,
+    )
+    if !compact {
+      write_child_table_rows(buf, s, files, name_width, num_format)
+    }
   }
-  buf.write_string(repeat('-', LINE_WIDTH))
+  buf.write_string(repeat('=', table_width))
   buf.write_char('\n')
   let t = r.total
-  write_table_row(buf, t.name, t.files, t.lines, t.code, t.comments, t.blanks)
-  buf.write_string(repeat('=', LINE_WIDTH))
+  write_table_row_width(
+    buf,
+    t.name,
+    t.files,
+    t.lines,
+    t.code,
+    t.comments,
+    t.blanks,
+    name_width,
+    num_format,
+  )
+  buf.write_string(repeat('=', table_width))
   buf.write_char('\n')
   buf.to_string()
 }
 
 ///|
-fn write_table_row(
+fn write_child_table_rows(
   buf : StringBuilder,
-  name : String,
-  files : Int32,
-  lines : Int32,
-  code : Int32,
-  comments : Int32,
-  blanks : Int32,
+  parent : @report.LangStat,
+  files : Array[(String, String, @counter.Counts)],
+  name_width : Int32,
+  num_format : String,
 ) -> Unit {
-  write_table_row_width(buf, name, files, lines, code, comments, blanks, 20)
+  let children : Map[String, @counter.Counts] = Map([])
+  for entry in files {
+    if entry.1 == parent.key {
+      for child in entry.2.blobs {
+        match children.get(child.0) {
+          Some(existing) => existing.add(child.1)
+          None => children.set(child.0, child.1.copy())
+        }
+      }
+    }
+  }
+  if children.is_empty() {
+    return
+  }
+  let keys : Array[String] = []
+  for child in children {
+    keys.push(child.0)
+  }
+  keys.sort_by(fn(a, b) { child_name(a).lexical_compare(child_name(b)) })
+  let sum = @counter.Counts::new()
+  sum.lines = parent.lines
+  sum.code = parent.code
+  sum.comments = parent.comments
+  sum.blanks = parent.blanks
+  for key in keys {
+    match children.get(key) {
+      Some(child) => {
+        write_table_row_width(
+          buf,
+          "|- " + child_name(key),
+          child.files,
+          child.lines,
+          child.code,
+          child.comments,
+          child.blanks,
+          name_width,
+          num_format,
+        )
+        sum.add(child)
+      }
+      None => ()
+    }
+  }
+  buf.write_string(pad_right(" (Total)", name_width))
+  buf.write_string(repeat(' ', 7))
+  buf.write_string(pad_left(format_number(sum.lines, num_format), 13))
+  buf.write_string(pad_left(format_number(sum.code, num_format), 13))
+  buf.write_string(pad_left(format_number(sum.comments, num_format), 13))
+  buf.write_string(pad_left(format_number(sum.blanks, num_format), 13))
+  buf.write_char('\n')
 }
 
 ///|
@@ -112,14 +206,34 @@ fn write_table_row_width(
   comments : Int32,
   blanks : Int32,
   width : Int32,
+  num_format : String,
 ) -> Unit {
   buf.write_string(pad_right(" " + name, width))
-  buf.write_string(pad_left(files.to_string(), 7))
-  buf.write_string(pad_left(lines.to_string(), 13))
-  buf.write_string(pad_left(code.to_string(), 13))
-  buf.write_string(pad_left(comments.to_string(), 13))
-  buf.write_string(pad_left(blanks.to_string(), 13))
+  buf.write_string(pad_left(format_number(files, num_format), 7))
+  buf.write_string(pad_left(format_number(lines, num_format), 13))
+  buf.write_string(pad_left(format_number(code, num_format), 13))
+  buf.write_string(pad_left(format_number(comments, num_format), 13))
+  buf.write_string(pad_left(format_number(blanks, num_format), 13))
   buf.write_char('\n')
+}
+
+///|
+fn format_number(value : Int32, style : String) -> String {
+  let separator = match style {
+    "commas" => ","
+    "dots" => "."
+    "underscores" => "_"
+    _ => return value.to_string()
+  }
+  let digits = value.to_string()
+  let out = StringBuilder()
+  for i = 0; i < digits.length(); i = i + 1 {
+    if i > 0 && (digits.length() - i) % 3 == 0 {
+      out.write_string(separator)
+    }
+    out.write_char(Int32::unsafe_to_char(digits.at(i).to_int()))
+  }
+  out.to_string()
 }
 
 ///|
@@ -510,18 +624,23 @@ pub fn render_files(
   r : @report.Report,
   files : Array[(String, String, @counter.Counts)],
 ) -> String {
+  render_files_with_options(r, files, LINE_WIDTH, "plain", false)
+}
+
+///|
+pub fn render_files_with_options(
+  r : @report.Report,
+  files : Array[(String, String, @counter.Counts)],
+  columns : Int32,
+  num_format : String,
+  compact : Bool,
+) -> String {
   let buf = StringBuilder()
-  let mut name_width = 20
-  for entry in files {
-    let needed = entry.0.length() + 3
-    if needed > name_width {
-      name_width = needed
-    }
-  }
-  let table_width = name_width + LINE_WIDTH - 20
+  let table_width = if columns > LINE_WIDTH { columns } else { LINE_WIDTH }
+  let name_width = table_width - 60
   buf.write_string(repeat('=', table_width))
   buf.write_char('\n')
-  buf.write_string(pad_right(" Language / File", name_width))
+  buf.write_string(pad_right(" Language", name_width))
   buf.write_string(pad_left("Files", 7))
   buf.write_string(pad_left("Lines", 13))
   buf.write_string(pad_left("Code", 13))
@@ -530,7 +649,7 @@ pub fn render_files(
   buf.write_char('\n')
   buf.write_string(repeat('=', table_width))
   buf.write_char('\n')
-  for lang in r.langs {
+  for index, lang in r.langs {
     write_table_row_width(
       buf,
       lang.name,
@@ -540,23 +659,24 @@ pub fn render_files(
       lang.comments,
       lang.blanks,
       name_width,
+      num_format,
     )
+    if !compact {
+      write_child_table_rows(buf, lang, files, name_width, num_format)
+    }
+    buf.write_string(repeat('-', table_width))
+    buf.write_char('\n')
     for entry in files {
       if entry.1 == lang.key {
-        write_table_row_width(
-          buf,
-          "  " + entry.0,
-          1,
-          entry.2.lines,
-          entry.2.code,
-          entry.2.comments,
-          entry.2.blanks,
-          name_width,
-        )
+        write_file_table_row(buf, entry.0, entry.2, name_width + 7, num_format)
       }
     }
+    if index + 1 < r.langs.length() {
+      buf.write_string(repeat('-', table_width))
+      buf.write_char('\n')
+    }
   }
-  buf.write_string(repeat('-', table_width))
+  buf.write_string(repeat('=', table_width))
   buf.write_char('\n')
   let t = r.total
   write_table_row_width(
@@ -568,8 +688,30 @@ pub fn render_files(
     t.comments,
     t.blanks,
     name_width,
+    num_format,
   )
   buf.write_string(repeat('=', table_width))
   buf.write_char('\n')
   buf.to_string()
+}
+
+///|
+fn write_file_table_row(
+  buf : StringBuilder,
+  path : String,
+  counts : @counter.Counts,
+  width : Int32,
+  num_format : String,
+) -> Unit {
+  let label = if path.length() + 1 <= width {
+    " " + path
+  } else {
+    " |" + path[path.length() - (width - 2):].to_owned()
+  }
+  buf.write_string(pad_right(label, width))
+  buf.write_string(pad_left(format_number(counts.lines, num_format), 13))
+  buf.write_string(pad_left(format_number(counts.code, num_format), 13))
+  buf.write_string(pad_left(format_number(counts.comments, num_format), 13))
+  buf.write_string(pad_left(format_number(counts.blanks, num_format), 13))
+  buf.write_char('\n')
 }

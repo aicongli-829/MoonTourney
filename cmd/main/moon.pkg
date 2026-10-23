@@ -6,6 +6,7 @@ import {
   "aicongli829/tokei/walk",
   "aicongli829/tokei/report",
   "aicongli829/tokei/output",
+  "aicongli829/tokei/saved",
 }
 
 pkgtype(kind: "executable")

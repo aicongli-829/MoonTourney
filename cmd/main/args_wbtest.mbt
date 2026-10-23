@@ -33,3 +33,21 @@ test "individual ignore sources can be disabled" {
   assert_eq(opts.no_ignore_vcs, true)
   assert_eq(opts.no_ignore, false)
 }
+
+///|
+test "upstream table presentation options are parsed" {
+  let opts = parse_args(["-n", "commas", "--columns", "100", "src"])
+  assert_eq(opts.num_format, "commas")
+  assert_eq(opts.columns, 100)
+  assert_eq(opts.paths[0], "src")
+  assert_eq(parse_args(["-c", "40"]).columns, 79)
+  assert_eq(parse_args(["-C"]).compact, true)
+}
+
+///|
+test "saved report import is distinct from scan paths" {
+  let opts = parse_args(["--input", "saved.json", "src"])
+  assert_eq(opts.input_file, Some("saved.json"))
+  assert_eq(opts.paths.length(), 1)
+  assert_eq(opts.paths[0], "src")
+}

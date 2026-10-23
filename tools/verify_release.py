@@ -15,6 +15,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import tempfile
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -71,7 +72,37 @@ def verify_cli(binary: pathlib.Path, expected_languages: int) -> None:
         raise SystemExit("CLI could not count its own MoonBit source file")
     if report["Total"]["code"] != moonbit["code"]:
         raise SystemExit("Total and MoonBit counts disagree")
-    print("CLI smoke test: 333-language listing and MoonBit JSON report pass")
+    with tempfile.TemporaryDirectory() as tmp:
+        saved = pathlib.Path(tmp) / "previous.json"
+        saved.write_text(json.dumps(report), encoding="utf-8")
+        merged = json.loads(run(binary, "--input", saved, "-o", "json",
+                                "counter/counter.mbt"))
+        if merged["Total"]["code"] != report["Total"]["code"] * 2:
+            raise SystemExit("CLI could not merge a saved report with a fresh scan")
+        if len(merged["MoonBit"]["reports"]) != 2:
+            raise SystemExit("Saved per-file reports were not preserved")
+    print("CLI smoke test: language listing, MoonBit report and saved JSON merge pass")
+
+
+def verify_terminal_parity(binary: pathlib.Path, upstream: pathlib.Path) -> None:
+    cases = [
+        (ROOT / "tests/fixtures/plain", []),
+        (ROOT / "tests/fixtures/plain", ["-c", "100"]),
+        (ROOT / "tests/fixtures/embedded", []),
+        (ROOT / "tests/fixtures/embedded", ["-C"]),
+    ]
+    with tempfile.TemporaryDirectory() as tmp:
+        large = pathlib.Path(tmp) / "large.rs"
+        large.write_text("fn main() {}\n" * 1234, encoding="utf-8")
+        cases.append((large, ["-n", "commas"]))
+        for fixture, flags in cases:
+            official = run(upstream, fixture, *flags)
+            port = run(binary, fixture, *flags)
+            if official != port:
+                raise SystemExit(
+                    f"Terminal output differs from upstream for {fixture} {flags}"
+                )
+    print("official terminal comparison: five table cases match exactly")
 
 
 def main() -> int:
@@ -101,6 +132,7 @@ def main() -> int:
             upstream, "--port", binary, matrices[-1],
             ROOT / "tests/fixtures/embedded")
         print("official v12.1.2 comparison: pass")
+        verify_terminal_parity(binary, upstream)
     print("release checks: pass")
     return 0
 
