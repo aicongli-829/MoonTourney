@@ -1,5 +1,5 @@
 import {
-  "mooncake/tokei/report",
-  "mooncake/tokei/counter",
-  "mooncake/tokei/lang",
+  "aicongli829/tokei/report",
+  "aicongli829/tokei/counter",
+  "aicongli829/tokei/lang",
 }

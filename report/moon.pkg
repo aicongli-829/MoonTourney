@@ -1,4 +1,4 @@
 import {
-  "mooncake/tokei/lang",
-  "mooncake/tokei/counter",
+  "aicongli829/tokei/lang",
+  "aicongli829/tokei/counter",
 }

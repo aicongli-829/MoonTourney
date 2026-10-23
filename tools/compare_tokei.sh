@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Differential test: compare mooncake/tokei against upstream tokei (JSON output).
+# Differential test: compare TokeiMBT against upstream tokei (JSON output).
 # Usage: tools/compare_tokei.sh <directory>
-# Requires: tokei (cargo install tokei) and a built mooncake/tokei binary.
+# Requires: tokei (cargo install tokei) and a built TokeiMBT binary.
 set -euo pipefail
 
 DIR="${1:?usage: compare_tokei.sh <directory>}"
@@ -14,7 +14,7 @@ if ! command -v "$UPSTREAM" >/dev/null 2>&1 && [ ! -x "$UPSTREAM" ]; then
 fi
 
 if [ ! -x "$BIN" ]; then
-  echo "mooncake/tokei binary not found at $BIN; run: moon build --target native" >&2
+  echo "TokeiMBT binary not found at $BIN; run: moon build --target native" >&2
   exit 2
 fi
 

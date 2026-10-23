@@ -1,11 +1,11 @@
 import {
   "moonbitlang/x/fs",
   "moonbitlang/core/env",
-  "mooncake/tokei/lang",
-  "mooncake/tokei/counter",
-  "mooncake/tokei/walk",
-  "mooncake/tokei/report",
-  "mooncake/tokei/output",
+  "aicongli829/tokei/lang",
+  "aicongli829/tokei/counter",
+  "aicongli829/tokei/walk",
+  "aicongli829/tokei/report",
+  "aicongli829/tokei/output",
 }
 
 pkgtype(kind: "executable")

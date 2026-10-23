@@ -1,5 +1,5 @@
 ///|
-/// Entry point: mooncake/tokei — a tokei port in MoonBit.
+/// Entry point: TokeiMBT — a tokei port in MoonBit.
 fn main {
   let argv = @env.args()
   let opts = parse_args(argv)
@@ -8,7 +8,7 @@ fn main {
     return
   }
   if opts.show_version {
-    println("mooncake/tokei " + VERSION)
+    println("TokeiMBT " + VERSION)
     return
   }
   if opts.list_langs {

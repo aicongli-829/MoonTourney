@@ -1,4 +1,4 @@
-# mooncake/tokei
+# TokeiMBT
 
 A code statistics tool for MoonBit — a pure-MoonBit port in progress of
 [tokei](https://github.com/XAMPPRocky/tokei) (XAMPPRocky/tokei, Apache-2.0/MIT).
@@ -13,8 +13,8 @@ The target language table is the official v15.0.0 table. The older v12.1.2
 executable is used only for comparison where the two releases share identical
 definitions; switching to its 226-language table would also remove MoonBit.
 
-This repository is ready for a GitHub source release. Mooncakes publication
-needs an account-owned module namespace, which is not configured yet.
+This repository is ready for a GitHub source release. The local MoonBit module
+uses `aicongli829/tokei`; Mooncakes publication needs a registered account.
 
 Run `moon run cmd/main -- tests/fixtures/plain` to get a real sample report:
 

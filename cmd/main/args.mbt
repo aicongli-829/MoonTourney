@@ -25,7 +25,7 @@ const VERSION = "0.1.0"
 ///|
 fn usage() -> String {
   (
-    $|mooncake/tokei \{VERSION} — count code, comments and blanks across 300+ languages.
+    $|TokeiMBT \{VERSION} — count code, comments and blanks across 300+ languages.
     $|A pure-MoonBit port of tokei (https://github.com/XAMPPRocky/tokei).
     $|
     $|USAGE:
