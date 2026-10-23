@@ -14,5 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: hustcer/setup-moonbit@v1.22
+      - name: Update Mooncakes registry
+        run: moon update
       - name: Verify language table, build, tests and CLI
         run: python tools/verify_release.py

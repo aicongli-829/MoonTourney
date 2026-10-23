@@ -43,6 +43,7 @@ Run `moon run cmd/main -- tests/fixtures/plain` to get a real sample report:
 ## Build & Run
 
 ```bash
+moon update  # fetch the Mooncakes index for moonbitlang/x
 moon build --target native
 # Windows binary: _build/native/debug/build/cmd/main/main.exe
 moon run cmd/main -- path/to/project
