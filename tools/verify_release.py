@@ -102,7 +102,18 @@ def verify_terminal_parity(binary: pathlib.Path, upstream: pathlib.Path) -> None
                 raise SystemExit(
                     f"Terminal output differs from upstream for {fixture} {flags}"
                 )
-    print("official terminal comparison: five table cases match exactly")
+    for fixture, flags in [
+        (pathlib.Path("tests/fixtures/embedded/sample.ipynb"), ["-f"]),
+        (pathlib.Path("tests/fixtures/embedded/sample.ipynb"), ["-f", "-C"]),
+        (pathlib.Path("tests/fixtures/embedded/sample.ipynb"), ["-f", "-c", "110"]),
+    ]:
+        official = run(upstream, fixture, *flags).replace("\\", "/")
+        port = run(binary, fixture, *flags).replace("\\", "/")
+        if official != port:
+            raise SystemExit(
+                f"Embedded file table differs from upstream for {fixture} {flags}"
+            )
+    print("official terminal comparison: eight table cases match after path normalization")
 
 
 def main() -> int:

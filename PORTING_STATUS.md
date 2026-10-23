@@ -39,8 +39,9 @@ that older table would remove a core reason for this port.
 - Local `.gitignore`, `.ignore`, and `.tokeignore` rules are loaded, with
   independent switches for VCS and dot ignore files.
 - Basic terminal tables, wider columns, grouped number styles, and Jupyter
-  embedded rows match five official v12.1.2 output cases exactly. `-C`
-  suppresses embedded rows as upstream does.
+  embedded rows and per-file child details match eight official v12.1.2 output
+  cases after normalizing Windows path separators. `-C` suppresses aggregate
+  embedded rows as upstream does, while `-f -C` retains the per-file details.
 - `--input <file>` reads official or TokeiMBT JSON reports, preserving file and
   child-language data, and merges their counts with a fresh scan.
 
@@ -53,10 +54,9 @@ that older table would remove a core reason for this port.
 2. Verify the complete ignore behavior: parent and nested `.gitignore`,
    negation, re-inclusion, escaped spaces, anchored patterns, and VCS/global
    ignore rules. Keep the traversal tests independent from parser tests.
-3. Bring `--files` embedded-language detail and CBOR serialization into
-   alignment with upstream output. Ordinary file rows now use its fixed table
-   layout; Jupyter child reports work for basic code and Markdown cells, but
-   per-file child detail and other embedded formats remain.
+3. Bring more complex `--files` embedded-language cases and CBOR serialization
+   into alignment with upstream output. Basic Jupyter code and Markdown child
+   reports now include per-file details; other embedded formats remain.
 4. Finish the upstream CLI option and error/exit-code compatibility matrix.
    `--input stdin`, configuration files, and several reporting options remain.
 5. Test large repositories, symlinks, duplicate roots, unreadable files,

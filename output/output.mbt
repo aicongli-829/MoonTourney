@@ -666,9 +666,30 @@ pub fn render_files_with_options(
     }
     buf.write_string(repeat('-', table_width))
     buf.write_char('\n')
+    let mut embedded_index = 0
     for entry in files {
       if entry.1 == lang.key {
-        write_file_table_row(buf, entry.0, entry.2, name_width + 7, num_format)
+        if entry.2.blobs.is_empty() {
+          write_file_table_row(
+            buf,
+            entry.0,
+            entry.2,
+            name_width + 7,
+            num_format,
+          )
+        } else {
+          write_embedded_file_rows(
+            buf,
+            entry.0,
+            lang.name,
+            entry.2,
+            name_width + 7,
+            table_width,
+            num_format,
+            embedded_index,
+          )
+          embedded_index += 1
+        }
       }
     }
     if index + 1 < r.langs.length() {
@@ -693,6 +714,58 @@ pub fn render_files_with_options(
   buf.write_string(repeat('=', table_width))
   buf.write_char('\n')
   buf.to_string()
+}
+
+///|
+/// Tokei expands each mixed-language file beneath its language summary.
+/// The first file starts with its path; subsequent files use a path separator.
+fn write_embedded_file_rows(
+  buf : StringBuilder,
+  path : String,
+  language : String,
+  counts : @counter.Counts,
+  name_width : Int32,
+  table_width : Int32,
+  num_format : String,
+  index : Int32,
+) -> Unit {
+  if index == 0 {
+    buf.write_string(" " + path + "\n")
+  } else {
+    let prefix = "-- " + path + " "
+    buf.write_string(prefix)
+    if prefix.length() < table_width {
+      buf.write_string(repeat('-', table_width - prefix.length()))
+    }
+    buf.write_char('\n')
+  }
+  write_file_table_row(buf, "|- " + language, counts, name_width, num_format)
+  let children : Array[String] = []
+  for child in counts.blobs {
+    children.push(child.0)
+  }
+  children.sort_by(fn(a, b) { child_name(a).lexical_compare(child_name(b)) })
+  for key in children {
+    match counts.blobs.get(key) {
+      Some(child) =>
+        write_file_table_row(
+          buf,
+          "|- " + child_name(key),
+          child,
+          name_width,
+          num_format,
+        )
+      None => ()
+    }
+  }
+  // Upstream leaves the full path visible in this summary, even beyond the
+  // fixed name column used for ordinary files.
+  buf.write_string(pad_right(" " + path, name_width))
+  buf.write_string(pad_left(format_number(counts.lines, num_format), 13))
+  buf.write_string(pad_left(format_number(counts.code, num_format), 13))
+  buf.write_string(pad_left(format_number(counts.comments, num_format), 13))
+  buf.write_string(pad_left(format_number(counts.blanks, num_format), 13))
+  buf.write_char('\n')
 }
 
 ///|

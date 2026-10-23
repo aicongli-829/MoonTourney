@@ -145,9 +145,10 @@ directory also matches after path normalization and report-order sorting.
 These fixtures do not establish complete grammar or feature parity for either
 version.
 
-Five terminal-output cases are also compared line-for-line against Tokei
-12.1.2: ordinary and wide tables, embedded-language rows, compact mode, and
-grouped numbers. JSON `--input` accepts a saved report file and preserves
+Eight terminal-output cases are also compared line-for-line against Tokei
+12.1.2 after normalizing Windows path separators: ordinary and wide tables,
+embedded-language rows, `--files` for a notebook, compact mode, and grouped
+numbers. JSON `--input` accepts a saved report file and preserves
 per-file and child-language counts; upstream's `stdin` input form is not yet
 implemented.
 
@@ -166,8 +167,8 @@ checks and tests, builds the native CLI, and checks a real MoonBit JSON report.
 ## Roadmap
 
 - Differential fixtures for every claimed language and a reproducible upstream comparison report
-- Match Tokei's full CLI/output semantics, including `--files` for embedded
-  languages, `--input stdin`, and exact error/exit behavior
+- Match Tokei's full CLI/output semantics, including nested embedded-language
+  cases, `--input stdin`, and exact error/exit behavior
 - Read configuration files and provide optional CBOR serialization
 - `--folders` per-directory statistics
 - HTML output format

@@ -131,3 +131,24 @@ test "notebook child rows can be shown or compacted" {
   let compact = render_table_with_files(report, files, 79, "plain", true)
   assert_eq(compact.contains(" |- Python"), false)
 }
+
+///|
+test "file table expands notebook child counts even in compact mode" {
+  let c = @counter.Counts::new()
+  c.files = 1
+  let child = @counter.Counts::new()
+  child.files = 1
+  child.lines = 3
+  child.code = 2
+  child.comments = 1
+  c.blobs.set("Python", child)
+  let counts : Map[String, @counter.Counts] = Map([])
+  counts.set("Jupyter", c)
+  let report = @report.build(counts, "language", false)
+  let files = [("sample.ipynb", "Jupyter", c)]
+  let table = render_files_with_options(report, files, 79, "plain", true)
+  assert_eq(table.contains("\n sample.ipynb\n"), true)
+  assert_eq(table.contains(" |- Jupyter Notebooks"), true)
+  assert_eq(table.contains(" |- Python"), true)
+  assert_eq(table.contains("\n sample.ipynb"), true)
+}
