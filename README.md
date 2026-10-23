@@ -1,34 +1,32 @@
 # TokeiMBT
 
-A code statistics tool for MoonBit — a pure-MoonBit port in progress of
-[tokei](https://github.com/XAMPPRocky/tokei) (XAMPPRocky/tokei, Apache-2.0/MIT).
+A MoonBit port of the code statistics tool
+[Tokei](https://github.com/XAMPPRocky/tokei) (XAMPPRocky/tokei, Apache-2.0/MIT).
 
-The project includes **333 imported language definitions** and a MoonBit
-scanner for code, comments and blank lines. These definitions are not yet
-equivalent to verified support for all 333 languages: differential fixtures
-currently cover 201 definitions shared with Tokei 12.1.2. Treat this as an early port, not a
-feature-complete replacement for upstream Tokei.
+TokeiMBT counts code, comments and blank lines, groups results by language,
+and provides terminal, JSON, CSV and YAML reports. It imports **333 language
+definitions** from Tokei v15.0.0. Automated comparison fixtures cover 201
+definitions shared with the runnable Tokei 12.1.2 release; the exact test
+scope is documented in [PORTING_STATUS.md](PORTING_STATUS.md).
 
-The target language table is the official v15.0.0 table. The older v12.1.2
-executable is used only for comparison where the two releases share identical
-definitions; switching to its 226-language table would also remove MoonBit.
+The imported table includes MoonBit. The v12.1.2 executable serves as a
+comparison reference for definitions shared by the two releases.
 
-This repository is ready for a GitHub source release. The local MoonBit module
-uses `aicongli829/tokei`; Mooncakes publication needs a registered account.
+The MoonBit module is `aicongli829/tokei`.
 
 Run `moon run cmd/main -- tests/fixtures/plain` to get a real sample report:
 
 ```text
 ===============================================================================
- Language             Files        Lines         Code     Comments       Blanks
+ Language            Files        Lines         Code     Comments       Blanks
 ===============================================================================
- C                        1            6            4            2            0
- Go                       1            6            4            1            1
- JavaScript               1            5            4            1            0
- Python                   1            6            5            1            0
- Rust                     1            7            6            1            0
--------------------------------------------------------------------------------
- Total                    5           30           23            6            1
+ C                       1            6            4            2            0
+ Go                      1            6            4            1            1
+ JavaScript              1            5            4            1            0
+ Python                  1            6            5            1            0
+ Rust                    1            7            6            1            0
+===============================================================================
+ Total                   5           30           23            6            1
 ===============================================================================
 ```
 
@@ -37,10 +35,10 @@ Run `moon run cmd/main -- tests/fixtures/plain` to get a real sample report:
 - **For MoonBit's own ecosystem**: every MoonBit repo (including all
   hackathon projects) benefits from a first-class LOC tool that also
   understands `.mbt`/`.mbti` files.
-- **Porting baseline**: the language grammar table is generated from tokei's
-  upstream `languages.json` (333 definitions). The scanner handles common
-  line and block comments, quotes and shebangs. Differential tests against
-  upstream Tokei are still needed before claiming parity for each language.
+- **Tokei implementation in MoonBit**: the language grammar table is
+  generated from Tokei's `languages.json` (333 definitions). The scanner
+  handles line and block comments, quotes and shebangs. Differential tests
+  compare its results with the runnable upstream release.
 
 ## Build & Run
 
@@ -48,7 +46,7 @@ Run `moon run cmd/main -- tests/fixtures/plain` to get a real sample report:
 moon build --target native
 # Windows binary: _build/native/debug/build/cmd/main/main.exe
 moon run cmd/main -- path/to/project
-moon test --target native  # 44 tests, including broad delimiter smoke tests
+moon test --target native  # 45 tests, including broad delimiter smoke tests
 python tools/verify_release.py  # checks build, tests, language table and CLI
 ```
 
@@ -142,15 +140,14 @@ The matrix generates 1,341 simple fixtures across the 201 language definitions
 identical in the v12.1.2 and v15.0.0 tables and compares per-file language,
 code, comment and blank counts. The complete JSON report for that generated
 directory also matches after path normalization and report-order sorting.
-These fixtures do not establish complete grammar or feature parity for either
-version.
+The comparison covers these generated cases; additional cases are tracked in
+[PORTING_STATUS.md](PORTING_STATUS.md).
 
 Eight terminal-output cases are also compared line-for-line against Tokei
 12.1.2 after normalizing Windows path separators: ordinary and wide tables,
 embedded-language rows, `--files` for a notebook, compact mode, and grouped
 numbers. JSON `--input` accepts a saved report file and preserves
-per-file and child-language counts; upstream's `stdin` input form is not yet
-implemented.
+per-file and child-language counts.
 
 `tools/verify_release.py` is the local release gate. It verifies that all 333
 generated language keys match the pinned official table, runs strict MoonBit
@@ -166,9 +163,8 @@ checks and tests, builds the native CLI, and checks a real MoonBit JSON report.
 
 ## Roadmap
 
-- Differential fixtures for every claimed language and a reproducible upstream comparison report
-- Match Tokei's full CLI/output semantics, including nested embedded-language
-  cases, `--input stdin`, and exact error/exit behavior
+- Expand differential fixtures to the rest of the language table and richer syntax
+- Add nested embedded-language cases, `--input stdin`, and more CLI options
 - Read configuration files and provide optional CBOR serialization
 - `--folders` per-directory statistics
 - HTML output format

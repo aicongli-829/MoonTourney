@@ -1,7 +1,6 @@
 # Tokei porting status
 
-This file records what has been verified, rather than treating imported
-language definitions as proof of complete language support.
+This file records verified behavior and the next compatibility milestones.
 
 The compatibility target is official Tokei v15.0.0. Its 333 imported language
 definitions are not custom additions. Tokei v12.1.2 is only a runnable
@@ -45,7 +44,7 @@ that older table would remove a core reason for this port.
 - `--input <file>` reads official or TokeiMBT JSON reports, preserving file and
   child-language data, and merges their counts with a fresh scan.
 
-## Required before calling this a complete Tokei port
+## Next compatibility milestones
 
 1. Expand differential fixtures to every claimed language and richer syntax,
    including raw/verbatim strings, nested edge cases and embedded
