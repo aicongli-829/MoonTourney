@@ -60,13 +60,18 @@ def binary_path() -> pathlib.Path:
     return path
 
 
-def verify_cli(binary: pathlib.Path, expected_languages: int) -> None:
-    listing = run(binary, "--languages")
+def run_cli(*args: str) -> str:
+    """Launch the CLI through MoonBit across native platforms."""
+    return run("moon", "run", "cmd/main", "--", *args)
+
+
+def verify_cli(expected_languages: int) -> None:
+    listing = run_cli("--languages")
     if not listing.startswith(f"Languages: {expected_languages}\n"):
         raise SystemExit("CLI reports the wrong language count")
     if "  MoonBit (mbt, mbti)" not in listing:
         raise SystemExit("CLI does not advertise MoonBit extensions")
-    report = json.loads(run(binary, "-o", "json", "counter/counter.mbt"))
+    report = json.loads(run_cli("-o", "json", "counter/counter.mbt"))
     moonbit = report.get("MoonBit")
     if not moonbit or moonbit["code"] <= 0 or len(moonbit["reports"]) != 1:
         raise SystemExit("CLI could not count its own MoonBit source file")
@@ -75,8 +80,8 @@ def verify_cli(binary: pathlib.Path, expected_languages: int) -> None:
     with tempfile.TemporaryDirectory() as tmp:
         saved = pathlib.Path(tmp) / "previous.json"
         saved.write_text(json.dumps(report), encoding="utf-8")
-        merged = json.loads(run(binary, "--input", saved, "-o", "json",
-                                "counter/counter.mbt"))
+        merged = json.loads(run_cli("--input", saved, "-o", "json",
+                                    "counter/counter.mbt"))
         if merged["Total"]["code"] != report["Total"]["code"] * 2:
             raise SystemExit("CLI could not merge a saved report with a fresh scan")
         if len(merged["MoonBit"]["reports"]) != 2:
@@ -128,9 +133,9 @@ def main() -> int:
     print(tests.strip().splitlines()[-1])
     run("moon", "build", "--target", "native")
     print("moon build: pass")
-    binary = binary_path()
-    verify_cli(binary, 333)
+    verify_cli(333)
     if args.upstream:
+        binary = binary_path()
         upstream = args.upstream.resolve()
         matrix_result = run(sys.executable, ROOT / "tools/diff_matrix.py",
                             "--upstream", upstream, "--port", binary)
