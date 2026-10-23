@@ -1,0 +1,18 @@
+name: Check Tokei MoonBit port
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hustcer/setup-moonbit@v1.22
+      - name: Verify language table, build, tests and CLI
+        run: python tools/verify_release.py

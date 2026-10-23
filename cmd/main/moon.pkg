@@ -1,0 +1,11 @@
+import {
+  "moonbitlang/x/fs",
+  "moonbitlang/core/env",
+  "mooncake/tokei/lang",
+  "mooncake/tokei/counter",
+  "mooncake/tokei/walk",
+  "mooncake/tokei/report",
+  "mooncake/tokei/output",
+}
+
+pkgtype(kind: "executable")

@@ -1,0 +1,5 @@
+import {
+  "mooncake/tokei/report",
+  "mooncake/tokei/counter",
+  "mooncake/tokei/lang",
+}
